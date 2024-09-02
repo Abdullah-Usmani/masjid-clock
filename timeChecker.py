@@ -14,10 +14,7 @@ import datetime
 
 
 # %%
-def initializers(offset):
-    currentUTC = time.gmtime()  # Get current time in UTC
-    currentMYT = time.localtime(time.mktime(currentUTC) + offset * 3600)  # Add 8 hours for GMT+8
-
+def initializers():
     df = pd.read_csv(r'C:\Users\Abdullah Usmani\Documents\MasjidClock\athan-plus-iqamah-time-clock\prayerTimes.csv')
 
     # Select only the relevant columns
@@ -39,11 +36,13 @@ def initializers(offset):
 
     df = df[relevant_columns]
 
-    return df, prayer_headers, iqama_headers, currentMYT
+    return df, prayer_headers, iqama_headers
 
 
 # %%
-def dateComparer(df, prayer_headers, currentMYT):
+def dateComparer(df, prayer_headers, offset):
+    currentUTC = time.gmtime()  # Get current time in UTC
+    currentMYT = time.localtime(time.mktime(currentUTC) + offset * 3600)  # Add 8 hours for GMT+8
     currentDate = time.strftime('%d-%b-%Y', currentMYT)
     found = False
     for i in range (366): # got potential for error if not leap year
@@ -67,7 +66,9 @@ def dateComparer(df, prayer_headers, currentMYT):
 
 
 # %%
-def timeComparer(selectedRow, df, prayer_headers, iqama_headers, currentMYT):
+def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
+    currentUTC = time.gmtime()  # Get current time in UTC
+    currentMYT = time.localtime(time.mktime(currentUTC) + offset * 3600)  # Add 8 hours for GMT+8
     currentTime = datetime.time(currentMYT.tm_hour, currentMYT.tm_min, currentMYT.tm_sec)
     
     
@@ -113,6 +114,6 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, currentMYT):
     return currentTime, displayCurrentTime, act_time, iqama_time, display_act_time, display_iqama_time, curr, next
 
 # %%
-df, prayer_headers, iqama_headers, currentMYT = initializers(8)
-selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers, currentMYT)
-currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer= timeComparer(selectedRow, df, prayer_headers, iqama_headers, currentMYT)
+# df, prayer_headers, iqama_headers = initializers()
+# selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers)
+# currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer= timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
