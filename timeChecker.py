@@ -20,6 +20,7 @@ def initializers():
     # Select only the relevant columns
     relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak']
     prayer_headers = ['Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak']
+    prayer_headers_ar = ['فجر', 'شروق', 'ظهر', 'عصر', 'مغرب', 'عشاء']
     iqama_headers = [25, 0, 15, 15, 10, 15]
 
     # Replace the values in the 'Day' column
@@ -36,7 +37,7 @@ def initializers():
 
     df = df[relevant_columns]
 
-    return df, prayer_headers, iqama_headers
+    return df, prayer_headers, prayer_headers_ar, iqama_headers
 
 
 # %%
@@ -114,6 +115,6 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
     return currentTime, displayCurrentTime, act_time, iqama_time, display_act_time, display_iqama_time, curr, next
 
 # %%
-# df, prayer_headers, iqama_headers = initializers()
+# df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
 # selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers)
 # currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer= timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
