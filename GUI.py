@@ -9,7 +9,7 @@ df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
 selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers, 8)
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("light")
+ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 root = ctk.CTk()
@@ -143,12 +143,12 @@ day_label.grid(sticky="nsew", row=2, column=0, columnspan=4, pady=6, padx=10)
 # currenttime_label_holder = ctk.CTkLabel(master=frame, font=("Roboto", 56, "bold"))
 # currenttime_label_holder.grid(sticky="n", row=3, column=0, columnspan=4, pady=30, padx=10)
 currenttime_labels = {}
-currenttime_labels[0] = ctk.CTkLabel(master=frame, font=("Roboto", 56, "bold"))
-currenttime_labels[0].grid(sticky="n", row=3, column=1, columnspan=2, pady=30, padx=10)
-currenttime_labels[1] = ctk.CTkLabel(master=frame, font=("Roboto", 24, "normal"))
-currenttime_labels[1].grid(sticky="ne", row=3, column=2, columnspan=1, pady=30, padx=10)
-currenttime_labels[2] = ctk.CTkLabel(master=frame, font=("Roboto", 24, "bold"))
-currenttime_labels[2].grid(sticky="e", row=3, column=2, columnspan=1, pady=30, padx=10)
+currenttime_labels[0] = ctk.CTkLabel(master=frame, font=("Roboto", 76, "bold"))
+currenttime_labels[0].grid(sticky="nsew", row=3, column=1, columnspan=2, pady=30, padx=10)
+currenttime_labels[1] = ctk.CTkLabel(master=frame, font=("Roboto", 24, "bold"))
+currenttime_labels[1].grid(sticky="se", row=3, column=2, columnspan=1, pady=55, padx=45)
+currenttime_labels[2] = ctk.CTkLabel(master=frame, font=("Roboto", 24, "normal"))
+currenttime_labels[2].grid(sticky="se", row=3, column=2, columnspan=1, pady=55, padx=0)
 
 # Grid headers
 ctk.CTkLabel(frame, text="               ", font=("Roboto", 24)).grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
