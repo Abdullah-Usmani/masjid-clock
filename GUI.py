@@ -24,6 +24,7 @@ frame.rowconfigure((0), weight = 1)
 frame.rowconfigure((1,2,3), weight = 2)
 frame.rowconfigure((4,5,6,7,8,9,10,11,12), weight = 1)
 
+
 def get_milliseconds_until_midnight():
     now = time.gmtime()  
     now = time.localtime(time.mktime(now) + 8 * 3600)  
@@ -33,8 +34,32 @@ def get_milliseconds_until_midnight():
     remaining_time = midnight - now_datetime
     return int(remaining_time.total_seconds() * 1000)  # Convert seconds to milliseconds
 
+# def fade_in_label(label, new_text, duration=5000):
+#     steps = 50  # Number of steps in the fade-in
+#     interval = duration // steps  # Interval between steps
+#     step_increment = 1 / steps  # Increment for each step
+
+#     def fade_step(step):
+#         alpha = int(255 * step)
+#         color = f"#{alpha:02x}{alpha:02x}{alpha:02x}"  # Create a grayscale color
+#         label.configure(fg_color=color)  # Change text color
+#         if step < 1:
+#             root.after(interval, fade_step, step + step_increment)
+#         else:
+#             label.configure(text=new_text)  # Set the new text after fading
+
+#     fade_step(0)  # Start the fade-in from step 0
+
+toggle_state = False
+
+def status_toggle():
+    global toggle_state
+    toggle_state = not toggle_state
+    print(toggle_state)
+    root.after(10000, status_toggle)
+
 def update_display():
-    currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
+    currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 11)
     
     # Replace hyphens with spaces
     f_date = date.replace('-', ' ')
@@ -52,14 +77,51 @@ def update_display():
     for i in range(len(prayer_headers)):
         if i == 1:
             continue  # Skip the element at index 2
+        if i == 6:
+            continue  # Skip the element at index 2
         
         sel = prayer_headers[i]
-        prayer_labels[i].configure(text=f"{prayer_headers[i]}")
-        act_time_labels[i].configure(text=f"{display_act_times[sel]}")
-        iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}")
-        prayer_labels_ar[i].configure(text=f"{prayer_headers_ar[i]}")
+        prayer_labels[i].configure(text=f"{prayer_headers[i]}", font=("Roboto", 24, "normal"))
+        act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 32, "normal"))
+        iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 32, "normal"))
+        prayer_labels_ar[i].configure(text=f"{prayer_headers_ar[i]}", font=("Roboto", 28, "normal"))
 
-    status_labels[1].configure(text=f"{display_act_times['Syuruk']}")
+    for i in range(len(prayer_headers)):
+        next = prayer_headers[i]
+        if i == 2:
+            continue
+        if i == 7:
+            continue
+        if currentTime < act_times['Midnight']:  # Compare current time with the actual time
+            prayer_labels[5].configure(font=("Roboto", 24, "bold"))
+            act_time_labels[5].configure(font=("Roboto", 32, "bold"))
+            iqama_time_labels[5].configure(font=("Roboto", 32, "bold"))
+            prayer_labels_ar[5].configure(font=("Roboto", 28, "bold"))
+            break
+        if currentTime < act_times['Fajr']:  # Compare current time with the actual time
+            break
+        if currentTime < act_times['Zohor'] and i > 2:
+            break
+        elif currentTime < act_times[next]:  # Compare current time with the actual time
+            prayer_labels[i-1].configure(font=("Roboto", 24, "bold"))
+            act_time_labels[i-1].configure(font=("Roboto", 32, "bold"))
+            iqama_time_labels[i-1].configure(font=("Roboto", 32, "bold"))
+            prayer_labels_ar[i-1].configure(font=("Roboto", 28, "bold"))
+            break
+        elif currentTime > act_times['Isyak']:
+            prayer_labels[5].configure(font=("Roboto", 24, "bold"))
+            act_time_labels[5].configure(font=("Roboto", 32, "bold"))
+            iqama_time_labels[5].configure(font=("Roboto", 32, "bold"))
+            prayer_labels_ar[5].configure(font=("Roboto", 28, "bold"))
+            break
+
+    new_text0 = f"{prayer_headers[1]}" if toggle_state else f"{prayer_headers[6]}"
+    status_labels[0].configure(text=new_text0)
+    new_text1 = f"{display_act_times['Syuruk']}" if toggle_state else f"{display_act_times['Midnight']}"
+    status_labels[1].configure(text=new_text1)
+    new_text2 = f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}"
+    status_labels[2].configure(text=new_text2)
+
     # if currentTime < act_times[next_prayer]:  # Compare current time with the actual time
     #     status_label.configure(text=f"{next_prayer} is next!")
     # elif currentTime > act_times['Isyak']:
@@ -71,12 +133,15 @@ def update_display():
 def update_date():
     selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers, 8)
     update_display()
+    status_toggle()
     
     root.after(86400000, update_date)
 
 def schedule_daily_update():
     milliseconds_until_midnight = get_milliseconds_until_midnight()
     root.after(milliseconds_until_midnight, update_date)
+
+
 
 my_image = ctk.CTkImage(light_image=Image.open("Images/ISoc (black).png"),
                                   dark_image=Image.open("Images/ISoc (white).png"),
@@ -112,6 +177,8 @@ row_counter = 5  # Initialize the row counter for grid placement
 for i in range(len(prayer_headers)):
     if i == 1:
         continue  # Skip the element at index 2
+    if i == 6:
+        continue  # Skip the element at index 7
     
     sel = prayer_headers[i]
     prayer_labels[i] = ctk.CTkLabel(master=frame, font=("Roboto", 24))
@@ -130,16 +197,15 @@ for i in range(len(prayer_headers)):
 
 
 
-status_labels[0] = ctk.CTkLabel(master=frame, font=("Roboto", 24), bg_color="gray", text="Syuruk")
+status_labels[0] = ctk.CTkLabel(master=frame, font=("Roboto", 24), bg_color="gray")
 status_labels[0].grid(row=row_counter, column=0, columnspan=1, pady=12, padx=0, sticky="nsew")
 status_labels[1] = ctk.CTkLabel(master=frame, font=("Roboto", 24), bg_color="gray")
 status_labels[1].grid(row=row_counter, column=1, columnspan=2, pady=12, padx=0, sticky="nsew")
-status_labels[2] = ctk.CTkLabel(master=frame, font=("Roboto", 28), bg_color="gray", text="شروق")
+status_labels[2] = ctk.CTkLabel(master=frame, font=("Roboto", 28), bg_color="gray")
 status_labels[2].grid(row=row_counter, column=3, columnspan=1, pady=12, padx=0, sticky="nsew")
 
 # Call the schedule_daily_update function once to start the periodic updates
 update_date()
-update_display()
 schedule_daily_update()
 
 # Execute Tkinter
