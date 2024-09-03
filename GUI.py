@@ -10,7 +10,7 @@ selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_head
 
 # Initialize the app and UI elements
 ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("green")
+ctk.set_default_color_theme("blue")
 
 root = ctk.CTk()
 
@@ -21,8 +21,8 @@ frame = ctk.CTkFrame(master=root)
 frame.pack(pady=20, padx=20, fill="both", expand=True)
 frame.columnconfigure((0,1,2,3), weight = 1)
 frame.rowconfigure((0), weight = 1)
-frame.rowconfigure((1,2,3), weight = 2)
-frame.rowconfigure((4,5,6,7,8,9,10,11,12), weight = 1)
+frame.rowconfigure((1,2), weight = 2)
+frame.rowconfigure((3,4,5,6,7,8,9,10,11,12), weight = 1)
 
 
 def get_milliseconds_until_midnight():
@@ -34,32 +34,15 @@ def get_milliseconds_until_midnight():
     remaining_time = midnight - now_datetime
     return int(remaining_time.total_seconds() * 1000)  # Convert seconds to milliseconds
 
-# def fade_in_label(label, new_text, duration=5000):
-#     steps = 50  # Number of steps in the fade-in
-#     interval = duration // steps  # Interval between steps
-#     step_increment = 1 / steps  # Increment for each step
-
-#     def fade_step(step):
-#         alpha = int(255 * step)
-#         color = f"#{alpha:02x}{alpha:02x}{alpha:02x}"  # Create a grayscale color
-#         label.configure(fg_color=color)  # Change text color
-#         if step < 1:
-#             root.after(interval, fade_step, step + step_increment)
-#         else:
-#             label.configure(text=new_text)  # Set the new text after fading
-
-#     fade_step(0)  # Start the fade-in from step 0
-
 toggle_state = False
 
 def status_toggle():
     global toggle_state
     toggle_state = not toggle_state
-    print(toggle_state)
     root.after(10000, status_toggle)
 
 def update_display():
-    currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 11)
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
     
     # Replace hyphens with spaces
     f_date = date.replace('-', ' ')
@@ -72,7 +55,9 @@ def update_display():
     else:
         print("XX:XX - UPDATE REQUIRED")
 
-    currenttime_label.configure(text=f"{displayCurrentTime}")
+    currenttime_labels[0].configure(text=f"{displayCurrentTime}")
+    currenttime_labels[1].configure(text=f"{displayCurrentTime_s}")
+    currenttime_labels[2].configure(text=f"{displayCurrentTime_meridian}")
 
     for i in range(len(prayer_headers)):
         if i == 1:
@@ -147,7 +132,7 @@ my_image = ctk.CTkImage(light_image=Image.open("Images/ISoc (black).png"),
                                   dark_image=Image.open("Images/ISoc (white).png"),
                                   size=(100, 50))
 image_label = ctk.CTkLabel(frame, image=my_image, text="")
-image_label.grid(sticky="nsew", row=0, column=0, columnspan=4, pady=24, padx=12)
+image_label.grid(sticky="nsew", row=0, column=0, columnspan=4, pady=6, padx=12)
 
 date_label = ctk.CTkLabel(master=frame, font=("Roboto", 48))
 date_label.grid(sticky="nsew", row=1, column=0, columnspan=4, pady=12, padx=10)
@@ -155,8 +140,15 @@ date_label.grid(sticky="nsew", row=1, column=0, columnspan=4, pady=12, padx=10)
 day_label = ctk.CTkLabel(master=frame, font=("Roboto", 32))
 day_label.grid(sticky="nsew", row=2, column=0, columnspan=4, pady=6, padx=10)
 
-currenttime_label = ctk.CTkLabel(master=frame, font=("Roboto", 56, "bold"))
-currenttime_label.grid(sticky="n", row=3, column=0, columnspan=4, pady=30, padx=10)
+# currenttime_label_holder = ctk.CTkLabel(master=frame, font=("Roboto", 56, "bold"))
+# currenttime_label_holder.grid(sticky="n", row=3, column=0, columnspan=4, pady=30, padx=10)
+currenttime_labels = {}
+currenttime_labels[0] = ctk.CTkLabel(master=frame, font=("Roboto", 56, "bold"))
+currenttime_labels[0].grid(sticky="n", row=3, column=1, columnspan=2, pady=30, padx=10)
+currenttime_labels[1] = ctk.CTkLabel(master=frame, font=("Roboto", 24, "normal"))
+currenttime_labels[1].grid(sticky="ne", row=3, column=2, columnspan=1, pady=30, padx=10)
+currenttime_labels[2] = ctk.CTkLabel(master=frame, font=("Roboto", 24, "bold"))
+currenttime_labels[2].grid(sticky="e", row=3, column=2, columnspan=1, pady=30, padx=10)
 
 # Grid headers
 ctk.CTkLabel(frame, text="               ", font=("Roboto", 24)).grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
@@ -197,11 +189,11 @@ for i in range(len(prayer_headers)):
 
 
 
-status_labels[0] = ctk.CTkLabel(master=frame, font=("Roboto", 24), bg_color="gray")
+status_labels[0] = ctk.CTkLabel(master=frame, font=("Roboto", 24), bg_color="lightgray")
 status_labels[0].grid(row=row_counter, column=0, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[1] = ctk.CTkLabel(master=frame, font=("Roboto", 24), bg_color="gray")
+status_labels[1] = ctk.CTkLabel(master=frame, font=("Roboto", 24), bg_color="lightgray")
 status_labels[1].grid(row=row_counter, column=1, columnspan=2, pady=12, padx=0, sticky="nsew")
-status_labels[2] = ctk.CTkLabel(master=frame, font=("Roboto", 28), bg_color="gray")
+status_labels[2] = ctk.CTkLabel(master=frame, font=("Roboto", 28), bg_color="lightgray")
 status_labels[2].grid(row=row_counter, column=3, columnspan=1, pady=12, padx=0, sticky="nsew")
 
 # Call the schedule_daily_update function once to start the periodic updates

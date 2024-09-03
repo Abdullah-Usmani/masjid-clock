@@ -108,7 +108,9 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
     elif hour == 0:
         hour = 12  # Handle midnight as 12 AM
 
-    displayCurrentTime = f"{hour}:{currentMYT.tm_min:02}:{currentMYT.tm_sec:02} {'AM' if currentMYT.tm_hour < 12 else 'PM'}"
+    displayCurrentTime = f"{hour}:{currentMYT.tm_min:02}"
+    displayCurrentTime_s = f"{currentMYT.tm_sec:02}"
+    displayCurrentTime_meridian = f"{'AM' if currentMYT.tm_hour < 12 else 'PM'}"
     
     # Create dictionaries to hold your times and display times
     act_time = {}
@@ -131,7 +133,7 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
             break
         elif currentTime > act_time['Isyak']:
             break
-    return currentTime, displayCurrentTime, act_time, iqama_time, display_act_time, display_iqama_time, curr, next
+    return currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian, act_time, iqama_time, display_act_time, display_iqama_time, curr, next
 
 # # Run initializers and dateComparer as needed
 # df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
