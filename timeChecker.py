@@ -50,8 +50,10 @@ def initializers():
     df = pd.read_csv(r'C:\Users\Abdullah Usmani\Documents\MasjidClock\athan-plus-iqamah-time-clock\prayerTimes.csv')
 
     # Select only the relevant columns
-    relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
-    prayer_headers = ['Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
+    # relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
+    relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight']
+    prayer_headers_old = ['Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
+    prayer_headers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight']
     prayer_headers_ar = ['فجر', 'شروق', 'ظهر', 'عصر', 'مغرب', 'عشاء', 'الليل نصف']
     iqama_headers = [25, 0, 15, 15, 10, 15, 0]
 
@@ -67,6 +69,12 @@ def initializers():
     }
     df['Day'] = df['Day'].replace(day_mapping)
 
+    # Create a mapping dictionary
+    prayer_mapping = dict(zip(prayer_headers_old, prayer_headers))
+
+    # Rename the columns in the DataFrame
+    df.rename(columns=prayer_mapping, inplace=True)
+
     # Apply the midnight function to each row
     df['Midnight'] = df.apply(lambda row: midnight(row['Fajr'], row['Maghrib']), axis=1)
 
@@ -75,6 +83,29 @@ def initializers():
 
 
 def dateComparer(df, prayer_headers, offset):
+
+    hijri_mapping = {
+        'Muh': 'Muharram',
+        'Saf': 'Safar',
+        'Raw': 'Rabi\' al-Awwal',
+        'Rak': 'Rabi\' al-Thani',
+        'Jam': 'Jumada al-Awwal',
+        'Jak': 'Jumada al-Thani',
+        'Rej': 'Rajab',
+        'Syb': 'Sha\'ban',
+        'Ram': 'Ramadan',
+        'Syw': 'Shawwal',
+        'Zkh': 'Dhu al-Qi\'dah',
+        'Zhj': 'Dhu al-Hijjah'
+    }
+    # Define a function to replace the month abbreviation
+    def replace_hijri_month(hijri_date):
+        parts = hijri_date.split('-')
+        if len(parts) > 1:
+            # Replace the second part (the month) with its full name
+            parts[1] = hijri_mapping.get(parts[1], parts[1])
+        return '-'.join(parts)
+
     currentUTC = time.gmtime()  # Get current time in UTC
     currentMYT = time.localtime(time.mktime(currentUTC) + offset * 3600)  # Add 8 hours for GMT+8
     currentDate = time.strftime('%d-%b-%Y', currentMYT)
@@ -88,11 +119,19 @@ def dateComparer(df, prayer_headers, offset):
             found = True
             selectedRow = i
             break
+    currentDate_dt = datetime.strptime(currentDate, "%d-%b-%Y")  # Convert back to datetime
+    f_currentDate = currentDate_dt.strftime("%d-%B-%Y")  # Reformat it
+    f_currentDate = f_currentDate.lstrip("0")
+    Hijri = replace_hijri_month(Hijri)
+    Hijri = Hijri.lstrip("0")
+
+    f_currentDate = f_currentDate.replace('-', ' ')
+    Hijri = Hijri.replace('-', ' ')
 
     if not found:
         print("XX:XX - UPDATE REQUIRED")
         
-    return selectedRow, rowDate, Hijri, Day, prayer_headers, found
+    return selectedRow, f_currentDate, Hijri, Day, prayer_headers, found
 
 def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
     currentUTC = time.gmtime()  # Get current time in UTC
@@ -126,16 +165,16 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
         display_iqama_time[i] = f"{int(iqama_time[i].strftime('%I'))}:{iqama_time[i].strftime('%M %p')}"
 
 
-    for i in range(len(prayer_headers)):  # Iterate over the prayer headers
-        next = prayer_headers[i]
-        curr = prayer_headers[i-1]
-        if currentTime < act_time[next]:  # Compare current time with the actual time
-            break
-        elif currentTime > act_time['Isyak']:
-            break
-    return currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian, act_time, iqama_time, display_act_time, display_iqama_time, curr, next
+    # for i in range(len(prayer_headers)):  # Iterate over the prayer headers
+    #     next = prayer_headers[i]
+    #     curr = prayer_headers[i-1]
+    #     if currentTime < act_time[next]:  # Compare current time with the actual time
+    #         break
+    #     elif currentTime > act_time['Isyak']:
+    #         break
+    return currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian, act_time, iqama_time, display_act_time, display_iqama_time
 
 # # Run initializers and dateComparer as needed
-# df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
-# selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers, 8)
-# currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
+df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
+selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers, 8)
+currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
