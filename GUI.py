@@ -10,7 +10,7 @@ selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_head
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("dark")
+ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
 
 root = ctk.CTk()
@@ -29,9 +29,10 @@ prayer_frame = ctk.CTkFrame(master=main_frame)
 prayer_frame.place(x=0,rely=0.55,relwidth=1,relheight=.45)
 
 rows_frame = ctk.CTkFrame(master=prayer_frame)
-rows_frame.pack(fill='both', expand=True)
-rows_frame.columnconfigure((0,1,2,3), weight = 1, uniform='a')
-rows_frame.rowconfigure((0,1,2,3,4,5,6,7), weight = 1, uniform='a')
+rows_frame.pack(fill='both', expand=True, ipady=30, ipadx=60)
+rows_frame.columnconfigure((0,3), weight = 1, uniform='a')
+rows_frame.columnconfigure((1,2), weight = 2, uniform='a')
+rows_frame.rowconfigure((1,2,3,4,5), weight = 1, uniform='a')
 
 
 
@@ -179,10 +180,10 @@ notice.pack(padx=10, pady=5)
 
 
 # Grid headers
-ctk.CTkLabel(rows_frame, text="", font=("Roboto", 24)).grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
-ctk.CTkLabel(rows_frame, text="Adhan ", font=("Roboto", 24)).grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
-ctk.CTkLabel(rows_frame, text="Iqamah", font=("Roboto", 24)).grid(row=0, column=2, padx=10, pady=5, sticky="nsew")
-ctk.CTkLabel(rows_frame, text="", font=("Roboto", 24)).grid(row=0, column=3, padx=10, pady=5, sticky="nsew")
+ctk.CTkLabel(rows_frame, text="", font=("Roboto", 18)).grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+ctk.CTkLabel(rows_frame, text="Adhan ", font=("Roboto", 18)).grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
+ctk.CTkLabel(rows_frame, text="Iqamah", font=("Roboto", 18)).grid(row=0, column=2, padx=10, pady=5, sticky="nsew")
+ctk.CTkLabel(rows_frame, text="", font=("Roboto", 18)).grid(row=0, column=3, padx=10, pady=5, sticky="nsew")
 
 
 # Create grid structure for prayer times
