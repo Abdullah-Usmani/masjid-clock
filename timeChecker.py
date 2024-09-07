@@ -51,13 +51,13 @@ def initializers():
 
     # Select only the relevant columns
     # relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
-    relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight']
+    relevant_columns = ['Date', 'Hijri', 'Day', 'Day_Arabic', 'Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight']
     prayer_headers_old = ['Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
     prayer_headers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight']
-    prayer_headers_ar = ['فجر', 'شروق', 'ظهر', 'عصر', 'مغرب', 'عشاء', 'الليل نصف']
+    prayer_headers_ar = ['فجر', 'شروق', 'ظهر', 'عصر', 'مغرب', 'عشاء', 'الليل منتصف']
     iqama_headers = [25, 0, 15, 15, 10, 15, 0]
 
-    # Replace the values in the 'Day' column
+    # Day mapping from Malay to English
     day_mapping = {
         'Isnin': 'Monday',
         'Selasa': 'Tuesday',
@@ -67,7 +67,24 @@ def initializers():
         'Sabtu': 'Saturday',
         'Ahad': 'Sunday'
     }
+
+    # Day mapping from Malay to Arabic
+    day_mapping_ar = {
+        'Isnin': 'الإثنين',
+        'Selasa': 'الثلاثاء',
+        'Rabu': 'الأربعاء',
+        'Khamis': 'الخميس',
+        'Jumaat': 'الجمعة',
+        'Sabtu': 'السبت',
+        'Ahad': 'الأحد'
+    }
+
+    # Create a new column for Arabic day names
+    df['Day_Arabic'] = df['Day'].replace(day_mapping_ar)
+
+    # Replace values in 'Day' column with English day names
     df['Day'] = df['Day'].replace(day_mapping)
+
 
     # Create a mapping dictionary
     prayer_mapping = dict(zip(prayer_headers_old, prayer_headers))
@@ -79,32 +96,69 @@ def initializers():
     df['Midnight'] = df.apply(lambda row: midnight(row['Fajr'], row['Maghrib']), axis=1)
 
     df = df[relevant_columns]
+
+    # print(df.describe())
+
     return df, prayer_headers, prayer_headers_ar, iqama_headers
 
 
 def dateComparer(df, prayer_headers, offset):
 
-    hijri_mapping = {
-        'Muh': 'Muharram',
-        'Saf': 'Safar',
-        'Raw': 'Rabi\' al-Awwal',
-        'Rak': 'Rabi\' al-Thani',
-        'Jam': 'Jumada al-Awwal',
-        'Jak': 'Jumada al-Thani',
-        'Rej': 'Rajab',
-        'Syb': 'Sha\'ban',
-        'Ram': 'Ramadan',
-        'Syw': 'Shawwal',
-        'Zkh': 'Dhu al-Qi\'dah',
-        'Zhj': 'Dhu al-Hijjah'
+    hijri_mapping_ar = {
+        'Muh': 'محرم',
+        'Saf': 'صفر',
+        'Raw': 'الأول ربيع',
+        'Rak': 'الآخر ربيع',
+        'Jam': 'الأولى جمادى',
+        'Jak': 'الآخرة جمادى',
+        'Rej': 'رجب',
+        'Syb': 'شعبان',
+        'Ram': 'رمضان',
+        'Syw': 'شوال',
+        'Zkh': 'القعدة ذو',
+        'Zhj': 'الحجة ذو'
     }
+    # hijri_mapping = {
+    #     'Muh': 'Muharram',
+    #     'Saf': 'Safar',
+    #     'Raw': 'Rabi\' al-Awwal',
+    #     'Rak': 'Rabi\' al-Aakhir',
+    #     'Jam': 'Jumada al-Awwal',
+    #     'Jak': 'Jumada al-Aakhir',
+    #     'Rej': 'Rajab',
+    #     'Syb': 'Sha\'ban',
+    #     'Ram': 'Ramadan',
+    #     'Syw': 'Shawwal',
+    #     'Zkh': 'Dhu al-Qi\'dah',
+    #     'Zhj': 'Dhu al-Hijjah'
+    # }
     # Define a function to replace the month abbreviation
+    # def replace_hijri_month(hijri_date):
+    #     parts = hijri_date.split('-')
+    #     if len(parts) > 1:
+    #         # Replace the second part (the month) with its full name
+    #         parts[1] = hijri_mapping.get(parts[1], parts[1])
+    #     return '-'.join(parts)
+
+    arabic_numerals = {
+        '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤',
+        '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩'
+    }
+
+    # Function to convert digits in a string to Arabic numerals
+    def convert_to_arabic_numerals(date_str):
+        return ''.join(arabic_numerals.get(char, char) for char in date_str)
+
+    # Define a function to replace the month abbreviation and format the Hijri date
     def replace_hijri_month(hijri_date):
         parts = hijri_date.split('-')
-        if len(parts) > 1:
-            # Replace the second part (the month) with its full name
-            parts[1] = hijri_mapping.get(parts[1], parts[1])
-        return '-'.join(parts)
+        if len(parts) == 3:
+            # Replace the second part (the month) with its full Arabic name
+            parts[1] = hijri_mapping_ar.get(parts[1], parts[1])
+            # Reorder to have day on the right and year on the left
+            formatted_hijri = f"{convert_to_arabic_numerals(parts[2])}-{parts[1]}-{convert_to_arabic_numerals(parts[0].lstrip("0"))}"
+            return formatted_hijri
+        return hijri_date
 
     currentUTC = time.gmtime()  # Get current time in UTC
     currentMYT = time.localtime(time.mktime(currentUTC) + offset * 3600)  # Add 8 hours for GMT+8
@@ -114,24 +168,24 @@ def dateComparer(df, prayer_headers, offset):
         rowDate = df.loc[i, 'Date']
         Hijri = df.loc[i, 'Hijri']
         Day = df.loc[i, 'Day']
+        Day_ar = df.loc[i, 'Day_Arabic']
         i += 1
         if rowDate == currentDate:
             found = True
             selectedRow = i
             break
     currentDate_dt = datetime.strptime(currentDate, "%d-%b-%Y")  # Convert back to datetime
-    f_currentDate = currentDate_dt.strftime("%d-%B-%Y")  # Reformat it
-    f_currentDate = f_currentDate.lstrip("0")
-    Hijri = replace_hijri_month(Hijri)
-    Hijri = Hijri.lstrip("0")
+    f_currentDate = currentDate_dt.strftime("%d-%B-%Y").lstrip("0")
 
+    Hijri = replace_hijri_month(Hijri).replace('-', '  ')
+    # Hijri = Hijri.lstrip("0")
     f_currentDate = f_currentDate.replace('-', ' ')
-    Hijri = Hijri.replace('-', ' ')
+
 
     if not found:
         print("XX:XX - UPDATE REQUIRED")
         
-    return selectedRow, f_currentDate, Hijri, Day, prayer_headers, found
+    return selectedRow, f_currentDate, Hijri, Day, Day_ar, prayer_headers, found
 
 def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
     currentUTC = time.gmtime()  # Get current time in UTC
@@ -176,5 +230,5 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
 
 # # Run initializers and dateComparer as needed
 df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
-selectedRow, date, hijri, day, headers, foundFlag = dateComparer(df, prayer_headers, 8)
-currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
+# selectedRow, date, hijri, day, day_ar, headers, foundFlag = dateComparer(df, prayer_headers, 8)
+# currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
