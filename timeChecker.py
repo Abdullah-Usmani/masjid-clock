@@ -229,6 +229,6 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
     return currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian, act_time, iqama_time, display_act_time, display_iqama_time
 
 # # Run initializers and dateComparer as needed
-df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
+# df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
 # selectedRow, date, hijri, day, day_ar, headers, foundFlag = dateComparer(df, prayer_headers, 8)
 # currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
