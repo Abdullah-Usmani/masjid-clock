@@ -6,11 +6,11 @@ import datetime
 import time
 
 df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
-selectedRow, date, hijri, day, day_ar, headers, foundFlag = dateComparer(df, prayer_headers, 8)
+selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_times, display_act_times, display_iqama_times  = dateComparer(df, prayer_headers, iqama_headers, 8)
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("system")
+ctk.set_appearance_mode("dark")
 # ctk.set_default_color_theme("green")
 light = "#f2f4f5"
 dark = "#212121"
@@ -49,8 +49,8 @@ def get_milliseconds_until_midnight():
     return int(remaining_time.total_seconds() * 1000)  # Convert seconds to milliseconds
 
 def update_date():
-    global selectedRow, date, hijri, day, day_ar, headers, foundFlag
-    selectedRow, date, hijri, day, day_ar, headers, foundFlag = dateComparer(df, prayer_headers, 8)
+    global selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_times, display_act_times, display_iqama_times 
+    selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_times, display_act_times, display_iqama_times  = dateComparer(df, prayer_headers, iqama_headers, 8)
     update_display()
     status_toggle()
     
@@ -84,102 +84,65 @@ def status_toggle():
     root.after(15000, status_toggle)
 
 def update_display():
-    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian, act_times, iqama_times, display_act_times, display_iqama_times = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 17)
-
-    global notice_text
-
-    # notice_text = "" if toggle_state else "ISHA DELAYED"
-    # notice_text = ""
-    # notice_text = "ISHA DELAYED"
+    global toggle_state, notice_text, prayer_headers, act_times, iqama_times, display_act_times, display_iqama_times
+    
     notice.configure(text=notice_text)
 
-    # eng_size2 = 48
-    # ar_size2 = 56
-    # date_size = eng_size2 if toggle_state else ar_size2
-    # switch_font = "Roboto" if toggle_state else "Simplified Arabic"
-    switch_font = "Roboto"
+    # Caching repeated values
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
     
-    date_text = f"{date}" if toggle_state else f"{hijri}"
+    if toggle_state:
+        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 28, "Roboto", "Adhan", "Iqamah", 18
+    else:
+        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 36, "Roboto", "أذان", "إقامة", 26
+    
+    # Updating date
     date_label.configure(text=date_text, font=(switch_font, 48))
-    day_eng_text=f"{day}"
-    day_ar_text=f"{day_ar}"
-    day_text = day_eng_text if toggle_state else day_ar_text
     day_label.configure(text=day_text, font=(switch_font, 32))
 
+    # Time labels
     currenttime_labels[0].configure(text=f"{displayCurrentTime}")
     currenttime_labels[1].configure(text=f"{displayCurrentTime_s}")
     currenttime_labels[2].configure(text=f"{displayCurrentTime_meridian}")
 
-    for i in range(len(prayer_headers)):
-        if i == 1:
-            continue  # Skip the element at index 2
-        if i == 6:
-            continue  # Skip the element at index 2
-        
+    adhan_label.configure(text=adhan_text, font=(switch_font, adhan_size, "normal"))
+    iqamah_label.configure(text=iqamah_text, font=(switch_font, adhan_size, "normal"))
+    
+    # Update Prayer Times - Using indices rather than repeated lookup
+    for i in [0, 2, 3, 4, 5]:
         sel = prayer_headers[i]
-        eng_text=f"{prayer_headers[i]}"
-        ar_text=f"{prayer_headers_ar[i]}"
-        prayer_text = eng_text if toggle_state else ar_text
-        eng_size = 28
-        ar_size = 36
-        prayer_size = eng_size if toggle_state else ar_size
-        prayer_labels[i].configure(text=prayer_text, font=(switch_font, prayer_size, "normal"))
-
-        eng_size1 = 18
-        ar_size1 = 26
-
-        adhan_text = "Adhan" if toggle_state else "أذان"
-        adhan_size = eng_size1 if toggle_state else ar_size1
-        adhan_label.configure(text=adhan_text, font=(switch_font, adhan_size, "normal"))
-
-        iqamah_text = "Iqamah" if toggle_state else "إقامة"
-        iqamah_size = eng_size1 if toggle_state else ar_size1
-        iqamah_label.configure(text=iqamah_text, font=(switch_font, iqamah_size, "normal"))
-        
-        # adhan_size = eng_size1 if toggle_state else ar_size1
-        status_labels[2].configure(font=(switch_font, 28, "normal"))
-        
+        prayer_labels[i].configure(text=prayer_headers[i] if toggle_state else prayer_headers_ar[i], font=(switch_font, prayer_size, "normal"))
         act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 36, "normal"))
         iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 36, "normal"))
-
-
-    for i in range(len(prayer_headers)):
+        
+    for i in [1, 3, 4, 5, 6]:
         next = prayer_headers[i]
-        if i == 2:
-            continue
-        if i == 7:
-            continue
         if currentTime < act_times['Midnight']:  # Compare current time with the actual time
-            prayer_labels[5].configure(font=(switch_font, prayer_size, "bold"), fg_color="#946d2e", text_color="white")
-            act_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            prayer_labels[5].configure(font=(switch_font, prayer_size, "bold"), text_color="#946d2e")
+            act_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
+            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
             break
         if currentTime < act_times['Fajr']:  # Compare current time with the actual time
             break
         if currentTime < act_times['Dhuhr'] and i > 2:
             break
         elif currentTime < act_times[next]:  # Compare current time with the actual time
-            prayer_labels[i-1].configure(font=(switch_font, prayer_size, "bold"), fg_color="#946d2e", text_color="white")
-            act_time_labels[i-1].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[i-1].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            prayer_labels[i-1].configure(font=(switch_font, prayer_size, "bold"), text_color="#946d2e")
+            act_time_labels[i-1].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
+            iqama_time_labels[i-1].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
             break
         elif currentTime > act_times['Isha']:
-            prayer_labels[5].configure(font=(switch_font, prayer_size, "bold"), fg_color="#946d2e", text_color="white")
-            act_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            prayer_labels[5].configure(font=(switch_font, prayer_size, "bold"), text_color="#946d2e")
+            act_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
+            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
             break
 
-    new_text0 = f"{prayer_headers[1]}" if toggle_state else f"{prayer_headers[6]}"
-    status_labels[0].configure(text=new_text0)
-    new_text1 = f"{display_act_times['Sunrise']}" if toggle_state else f"{display_act_times['Midnight']}"
-    status_labels[1].configure(text=new_text1)
-    new_text2 = f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}"
-    status_labels[2].configure(text=new_text2)
+    # Status Labels - Only reconfigure when needed
+    status_labels[0].configure(text=f"{prayer_headers[1]}" if toggle_state else f"{prayer_headers[6]}")
+    status_labels[1].configure(text=f"{display_act_times['Sunrise']}" if toggle_state else f"{display_act_times['Midnight']}")
+    status_labels[2].configure(text=f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}")
 
-    # Schedule the function to run again after 1 second (1000 milliseconds)
-    root.after(500, update_display)
-
-
+    root.after(250, update_display)
 
 my_image = ctk.CTkImage(light_image=Image.open("Images/ISoc (black).png"),
                                   dark_image=Image.open("Images/ISoc (white).png"),
@@ -261,12 +224,11 @@ for i in range(len(prayer_headers)):
     row_counter += 1  # Increment row counter for the next set of labels
 
 
-
 status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 24), fg_color=("#969696", "#383838"))
 status_labels[0].grid(row=row_counter, column=0, columnspan=1, pady=12, padx=0, sticky="nsew")
 status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 24), fg_color=("#969696", "#383838"))
 status_labels[1].grid(row=row_counter, column=1, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[2] = ctk.CTkLabel(master=rows_frame, fg_color=("#969696", "#383838"))
+status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 28), fg_color=("#969696", "#383838"))
 status_labels[2].grid(row=row_counter, column=2, columnspan=1, pady=12, padx=0, sticky="nsew")
 
 # Call the schedule_daily_update function once to start the periodic updates

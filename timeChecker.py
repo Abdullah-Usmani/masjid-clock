@@ -102,7 +102,7 @@ def initializers():
     return df, prayer_headers, prayer_headers_ar, iqama_headers
 
 
-def dateComparer(df, prayer_headers, offset):
+def dateComparer(df, prayer_headers, iqama_headers, offset):
 
     hijri_mapping_ar = {
         'Muh': 'محرم',
@@ -184,10 +184,24 @@ def dateComparer(df, prayer_headers, offset):
 
     if not found:
         print("XX:XX - UPDATE REQUIRED")
-        
-    return selectedRow, f_currentDate, Hijri, Day, Day_ar, prayer_headers, found
 
-def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
+        # Create dictionaries to hold your times and display times
+    act_time = {}
+    iqama_time = {}
+    display_act_time = {}
+    display_iqama_time = {}
+
+    for j, i in enumerate(prayer_headers):
+        # Store the values in dictionaries
+        act_time[i] = datetime.strptime(df.loc[selectedRow, f'{i}'], '%I:%M %p').time()
+        iqama_time[i] = (datetime.combine(datetime.min, act_time[i]) + timedelta(minutes=iqama_headers[j])).time()
+        display_act_time[i] = f"{int(act_time[i].strftime('%I'))}:{act_time[i].strftime('%M %p')}"
+        display_iqama_time[i] = f"{int(iqama_time[i].strftime('%I'))}:{iqama_time[i].strftime('%M %p')}"
+
+        
+    return selectedRow, f_currentDate, Hijri, Day, Day_ar, prayer_headers, found, act_time, iqama_time, display_act_time, display_iqama_time 
+
+def timeComparer(offset):
     currentUTC = time.gmtime()  # Get current time in UTC
     currentMYT = time.localtime(time.mktime(currentUTC) + offset * 3600)  # Add 8 hours for GMT+8
     
@@ -205,18 +219,6 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
     displayCurrentTime_s = f"{currentMYT.tm_sec:02}"
     displayCurrentTime_meridian = f"{'AM' if currentMYT.tm_hour < 12 else 'PM'}"
     
-    # Create dictionaries to hold your times and display times
-    act_time = {}
-    iqama_time = {}
-    display_act_time = {}
-    display_iqama_time = {}
-
-    for j, i in enumerate(prayer_headers):
-        # Store the values in dictionaries
-        act_time[i] = datetime.strptime(df.loc[selectedRow, f'{i}'], '%I:%M %p').time()
-        iqama_time[i] = (datetime.combine(datetime.min, act_time[i]) + timedelta(minutes=iqama_headers[j])).time()
-        display_act_time[i] = f"{int(act_time[i].strftime('%I'))}:{act_time[i].strftime('%M %p')}"
-        display_iqama_time[i] = f"{int(iqama_time[i].strftime('%I'))}:{iqama_time[i].strftime('%M %p')}"
 
 
     # for i in range(len(prayer_headers)):  # Iterate over the prayer headers
@@ -226,7 +228,7 @@ def timeComparer(selectedRow, df, prayer_headers, iqama_headers, offset):
     #         break
     #     elif currentTime > act_time['Isyak']:
     #         break
-    return currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian, act_time, iqama_time, display_act_time, display_iqama_time
+    return currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian
 
 # # Run initializers and dateComparer as needed
 # df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
