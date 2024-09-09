@@ -10,7 +10,7 @@ selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_time
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("dark")
+ctk.set_appearance_mode("system")
 # ctk.set_default_color_theme("green")
 light = "#f2f4f5"
 dark = "#212121"
@@ -76,20 +76,20 @@ def show_dialog():
 # Bind the key (e.g., "d" key) to the dialog function
 root.bind("<d>", lambda event: show_dialog())  # You can change "d" to any ke
 
-
-
 def status_toggle():
     global toggle_state
     toggle_state = not toggle_state
-    root.after(15000, status_toggle)
+    root.after(1000, status_toggle)
 
 def update_display():
     global toggle_state, notice_text, prayer_headers, act_times, iqama_times, display_act_times, display_iqama_times
     
     notice.configure(text=notice_text)
 
+    # root.update_idletasks()  # Forces all idle tasks to update at once
+
     # Caching repeated values
-    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(14)
     
     if toggle_state:
         date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 28, "Roboto", "Adhan", "Iqamah", 18
@@ -118,23 +118,23 @@ def update_display():
     for i in [1, 3, 4, 5, 6]:
         next = prayer_headers[i]
         if currentTime < act_times['Midnight']:  # Compare current time with the actual time
-            prayer_labels[5].configure(font=(switch_font, prayer_size, "bold"), text_color="#946d2e")
-            act_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
-            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
+            prayer_labels[5].configure(fg_color="#946d2e", text_color="white")
+            act_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
             break
         if currentTime < act_times['Fajr']:  # Compare current time with the actual time
             break
         if currentTime < act_times['Dhuhr'] and i > 2:
             break
         elif currentTime < act_times[next]:  # Compare current time with the actual time
-            prayer_labels[i-1].configure(font=(switch_font, prayer_size, "bold"), text_color="#946d2e")
-            act_time_labels[i-1].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
-            iqama_time_labels[i-1].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
+            prayer_labels[i-1].configure(fg_color="#946d2e", text_color="white")
+            act_time_labels[i-1].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            iqama_time_labels[i-1].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
             break
         elif currentTime > act_times['Isha']:
-            prayer_labels[5].configure(font=(switch_font, prayer_size, "bold"), text_color="#946d2e")
-            act_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
-            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), text_color="#946d2e")
+            prayer_labels[5].configure(fg_color="#946d2e", text_color="white")
+            act_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
             break
 
     # Status Labels - Only reconfigure when needed
@@ -142,7 +142,8 @@ def update_display():
     status_labels[1].configure(text=f"{display_act_times['Sunrise']}" if toggle_state else f"{display_act_times['Midnight']}")
     status_labels[2].configure(text=f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}")
 
-    root.after(250, update_display)
+    root.update_idletasks()  # Forces all idle tasks to update at once
+    root.after(500, update_display)
 
 my_image = ctk.CTkImage(light_image=Image.open("Images/ISoc (black).png"),
                                   dark_image=Image.open("Images/ISoc (white).png"),

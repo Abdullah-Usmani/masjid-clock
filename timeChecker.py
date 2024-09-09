@@ -115,8 +115,8 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
         'Syb': 'شعبان',
         'Ram': 'رمضان',
         'Syw': 'شوال',
-        'Zkh': 'القعدة ذو',
-        'Zhj': 'الحجة ذو'
+        'Zkh': 'القعدة ذي',
+        'Zhj': 'الحجة ذي'
     }
     # hijri_mapping = {
     #     'Muh': 'Muharram',
