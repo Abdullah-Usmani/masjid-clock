@@ -10,7 +10,7 @@ selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_time
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("system")
+ctk.set_appearance_mode("light")
 # ctk.set_default_color_theme("green")
 light = "#f2f4f5"
 dark = "#212121"
@@ -41,7 +41,7 @@ rows_frame.rowconfigure((0,1,2,3,4,5), weight = 1, uniform='a')
 
 def get_milliseconds_until_midnight():
     now = time.gmtime()  
-    now = time.localtime(time.mktime(now) + 6 * 3600)  
+    now = time.localtime(time.mktime(now) + 8 * 3600)  
     now_datetime = datetime.datetime(year=now.tm_year, month=now.tm_mon, day=now.tm_mday,
                                      hour=now.tm_hour, minute=now.tm_min, second=now.tm_sec)
     midnight = datetime.datetime.combine(now_datetime.date() + datetime.timedelta(days=1), datetime.time(0, 0))
@@ -79,7 +79,7 @@ root.bind("<d>", lambda event: show_dialog())  # You can change "d" to any ke
 def status_toggle():
     global toggle_state
     toggle_state = not toggle_state
-    root.after(1000, status_toggle)
+    root.after(5000, status_toggle)
 
 def update_display():
     global toggle_state, notice_text, prayer_headers, act_times, iqama_times, display_act_times, display_iqama_times
@@ -89,7 +89,7 @@ def update_display():
     # root.update_idletasks()  # Forces all idle tasks to update at once
 
     # Caching repeated values
-    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(14)
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
     
     if toggle_state:
         date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 28, "Roboto", "Adhan", "Iqamah", 18
@@ -111,9 +111,9 @@ def update_display():
     # Update Prayer Times - Using indices rather than repeated lookup
     for i in [0, 2, 3, 4, 5]:
         sel = prayer_headers[i]
-        prayer_labels[i].configure(text=prayer_headers[i] if toggle_state else prayer_headers_ar[i], font=(switch_font, prayer_size, "normal"))
-        act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 36, "normal"))
-        iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 36, "normal"))
+        prayer_labels[i].configure(text=prayer_headers[i] if toggle_state else prayer_headers_ar[i], font=(switch_font, prayer_size, "normal"), fg_color=(light, dark), text_color=("black", "white"))
+        act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 36, "normal"), fg_color=(light, dark), text_color=("black", "white"))
+        iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 36, "normal"), fg_color=(light, dark), text_color=("black", "white"))
         
     for i in [1, 3, 4, 5, 6]:
         next = prayer_headers[i]
