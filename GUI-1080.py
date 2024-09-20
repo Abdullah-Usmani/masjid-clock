@@ -10,7 +10,7 @@ selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_time
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("light")
+ctk.set_appearance_mode("dark")
 # ctk.set_default_color_theme("green")
 light = "#f2f4f5"
 dark = "#212121"
@@ -18,7 +18,13 @@ dark = "#212121"
 root = ctk.CTk()
 
 root.title("Prayer Times - ISOC 24/25")
-root.geometry('1080x1920-1090-0')
+root.geometry('1920x1080+1910+0')  # Width x Height + X + Y
+
+# Make the window fullscreen
+root.attributes("-fullscreen", True)
+
+# Optional: Bind the Escape key to exit fullscreen
+root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
 
 main_frame = ctk.CTkFrame(master=root, fg_color=(light, dark))
 main_frame.pack(padx=10, pady=10, fill='both', expand=True)
@@ -41,7 +47,7 @@ rows_frame.rowconfigure((0,1,2,3,4,5), weight = 1, uniform='a')
 
 def get_milliseconds_until_midnight():
     now = time.gmtime()  
-    now = time.localtime(time.mktime(now) + 8 * 3600)  
+    now = time.localtime(time.mktime(now) + 8 * 5400)  
     now_datetime = datetime.datetime(year=now.tm_year, month=now.tm_mon, day=now.tm_mday,
                                      hour=now.tm_hour, minute=now.tm_min, second=now.tm_sec)
     midnight = datetime.datetime.combine(now_datetime.date() + datetime.timedelta(days=1), datetime.time(0, 0))
@@ -74,7 +80,7 @@ def show_dialog():
     notice_text = input_dialog()  # Get input from the user and update the variable
 
 # Bind the key (e.g., "d" key) to the dialog function
-root.bind("<d>", lambda event: show_dialog())  # You can change "d" to any ke
+root.bind("<e>", lambda event: show_dialog())  # You can change "d" to any ke
 
 def status_toggle():
     global toggle_state
@@ -92,13 +98,14 @@ def update_display():
     currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
     
     if toggle_state:
-        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 28, "Roboto", "Adhan", "Iqamah", 18
+        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
     else:
-        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 36, "Roboto", "أذان", "إقامة", 26
+        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 54, "Roboto", "أذان", "إقامة", 39
     
     # Updating date
-    date_label.configure(text=date_text, font=(switch_font, 48))
-    day_label.configure(text=day_text, font=(switch_font, 32))
+    # 72, 48
+    date_label.configure(text=date_text, font=(switch_font, 54))
+    day_label.configure(text=day_text, font=(switch_font, 36))
 
     # Time labels
     currenttime_labels[0].configure(text=f"{displayCurrentTime}")
@@ -112,15 +119,15 @@ def update_display():
     for i in [0, 2, 3, 4, 5]:
         sel = prayer_headers[i]
         prayer_labels[i].configure(text=prayer_headers[i] if toggle_state else prayer_headers_ar[i], font=(switch_font, prayer_size, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 36, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 36, "normal"), fg_color=(light, dark), text_color=("black", "white"))
+        act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
+        iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
         
     for i in [1, 3, 4, 5, 6]:
         next = prayer_headers[i]
         if currentTime < act_times['Midnight']:  # Compare current time with the actual time
             prayer_labels[5].configure(fg_color="#946d2e", text_color="white")
-            act_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            act_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
+            iqama_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
             break
         if currentTime < act_times['Fajr']:  # Compare current time with the actual time
             break
@@ -128,13 +135,13 @@ def update_display():
             break
         elif currentTime < act_times[next]:  # Compare current time with the actual time
             prayer_labels[i-1].configure(fg_color="#946d2e", text_color="white")
-            act_time_labels[i-1].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[i-1].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            act_time_labels[i-1].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
+            iqama_time_labels[i-1].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
             break
         elif currentTime > act_times['Isha']:
             prayer_labels[5].configure(fg_color="#946d2e", text_color="white")
-            act_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[5].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
+            act_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
+            iqama_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
             break
 
     # Status Labels - Only reconfigure when needed
@@ -143,7 +150,7 @@ def update_display():
     status_labels[2].configure(text=f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}")
 
     root.update_idletasks()  # Forces all idle tasks to update at once
-    root.after(500, update_display)
+    root.after(100, update_display)
 
 my_image = ctk.CTkImage(light_image=Image.open("Images/ISoc (black).png"),
                                   dark_image=Image.open("Images/ISoc (white).png"),
@@ -164,13 +171,14 @@ time_frame = ctk.CTkFrame(master=info_frame, fg_color=(light, dark))
 time_frame.pack(fill='none',expand=False)
 
 # Add elements to the container frame using `grid()`
-currenttime_labels[0] = ctk.CTkLabel(master=time_frame, font=("Roboto", 100, "bold"))
+# 150 time, 
+currenttime_labels[0] = ctk.CTkLabel(master=time_frame, font=("Roboto", 100, "bold")) 
 currenttime_labels[0].grid(row=0, column=2, padx=(0, 5), pady=10)
 
-currenttime_labels[1] = ctk.CTkLabel(master=time_frame, font=("Roboto", 24, "bold"))
+currenttime_labels[1] = ctk.CTkLabel(master=time_frame, font=("Roboto", 36, "bold"))
 currenttime_labels[1].grid(row=0, column=3, padx=(5, 5), pady=10)
 
-currenttime_labels[2] = ctk.CTkLabel(master=time_frame, font=("Roboto", 24, "normal"))
+currenttime_labels[2] = ctk.CTkLabel(master=time_frame, font=("Roboto", 36, "normal"))
 currenttime_labels[2].grid(row=0, column=4, padx=(5, 5), pady=10)
 ctk.CTkLabel(time_frame, text="").grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 ctk.CTkLabel(time_frame, text="").grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
@@ -184,7 +192,7 @@ time_frame.rowconfigure(0, weight=0)
 noti_frame = ctk.CTkFrame(master=info_frame, fg_color=(light, dark))
 noti_frame.pack(fill='x', expand=True)
 
-notice = ctk.CTkLabel(noti_frame, font=("Roboto", 24, "bold"), text_color=("maroon", "red"))
+notice = ctk.CTkLabel(noti_frame, font=("Roboto", 30, "bold"), text_color=("maroon", "red"))
 notice.pack(padx=10, pady=5)
 
 # Prayers Frame
@@ -216,20 +224,20 @@ for i in range(len(prayer_headers)):
     prayer_labels[i] = ctk.CTkLabel(master=rows_frame)
     prayer_labels[i].grid(row=row_counter, column=1, pady=6, sticky="nsew")
     
-    act_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 32))
+    act_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 48))
     act_time_labels[i].grid(row=row_counter, column=0, pady=6, sticky="nsew")
     
-    iqama_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 32))
+    iqama_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 48))
     iqama_time_labels[i].grid(row=row_counter, column=2, pady=6, sticky="nsew")
     
     row_counter += 1  # Increment row counter for the next set of labels
 
 
-status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 24), fg_color=("#969696", "#383838"))
+status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 36), fg_color=("#969696", "#383838"))
 status_labels[0].grid(row=row_counter, column=0, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 24), fg_color=("#969696", "#383838"))
+status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 36), fg_color=("#969696", "#383838"))
 status_labels[1].grid(row=row_counter, column=1, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 28), fg_color=("#969696", "#383838"))
+status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 42), fg_color=("#969696", "#383838"))
 status_labels[2].grid(row=row_counter, column=2, columnspan=1, pady=12, padx=0, sticky="nsew")
 
 # Call the schedule_daily_update function once to start the periodic updates
