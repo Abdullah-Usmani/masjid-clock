@@ -10,7 +10,7 @@ selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_time
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("dark")
+ctk.set_appearance_mode("light")
 # ctk.set_default_color_theme("green")
 light = "#f2f4f5"
 dark = "#212121"
