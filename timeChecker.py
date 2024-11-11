@@ -109,7 +109,7 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
         'Saf': 'صفر',
         'Raw': 'الأول ربيع',
         'Rak': 'الآخر ربيع',
-        'Jam': 'الأولى جمادى',
+        'Jaw': 'الأولى جمادى',
         'Jak': 'الآخرة جمادى',
         'Rej': 'رجب',
         'Syb': 'شعبان',
@@ -156,7 +156,12 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
             # Replace the second part (the month) with its full Arabic name
             parts[1] = hijri_mapping_ar.get(parts[1], parts[1])
             # Reorder to have day on the right and year on the left
-            formatted_hijri = f"{convert_to_arabic_numerals(parts[2])}-{parts[1]}-{convert_to_arabic_numerals(parts[0].lstrip("0"))}"
+            dayX = convert_to_arabic_numerals(parts[0].lstrip("0"))
+            monthX = parts[1]
+            yearX = convert_to_arabic_numerals(parts[2])
+
+            formatted_hijri = f"{yearX}-{monthX}-{dayX}"
+
             return formatted_hijri
         return hijri_date
 

@@ -18,7 +18,7 @@ dark = "#212121"
 root = ctk.CTk()
 
 root.title("Prayer Times - ISOC 24/25")
-root.geometry('1920x1080+1910+0')  # Width x Height + X + Y
+root.geometry('1080x1920+1910+0')  # Width x Height + X + Y
 
 # Make the window fullscreen
 root.attributes("-fullscreen", True)
