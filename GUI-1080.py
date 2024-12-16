@@ -4,13 +4,18 @@ from PIL import Image
 import customtkinter as ctk
 import datetime
 import time
+import tracemalloc
+import psutil
+
+# starting the monitoring
+tracemalloc.start()
 
 df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
 selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_times, display_act_times, display_iqama_times  = dateComparer(df, prayer_headers, iqama_headers, 8)
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("light")
+ctk.set_appearance_mode("dark")
 # ctk.set_default_color_theme("green")
 light = "#f2f4f5"
 dark = "#212121"
@@ -18,7 +23,7 @@ dark = "#212121"
 root = ctk.CTk()
 
 root.title("Prayer Times - ISOC 24/25")
-root.geometry('1920x1080+1910+0')  # Width x Height + X + Y
+root.geometry('1080x1920+1910+0')  # Width x Height + X + Y
 
 # Make the window fullscreen
 root.attributes("-fullscreen", True)
@@ -95,7 +100,7 @@ def update_display():
     # root.update_idletasks()  # Forces all idle tasks to update at once
 
     # Caching repeated values
-    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(9)
     
     if toggle_state:
         date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
@@ -148,6 +153,13 @@ def update_display():
     status_labels[0].configure(text=f"{prayer_headers[1]}" if toggle_state else f"{prayer_headers[6]}")
     status_labels[1].configure(text=f"{display_act_times['Sunrise']}" if toggle_state else f"{display_act_times['Midnight']}")
     status_labels[2].configure(text=f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}")
+
+    current_memory, peak_memory = tracemalloc.get_traced_memory()
+    print(f"Current memory usage: {current_memory / 1024:.2f} KB; Peak: {peak_memory / 1024:.2f} KB")
+
+    # Track CPU usage
+    cpu_usage = psutil.cpu_percent(interval=0.1)  # Non-blocking
+    print(f"CPU Usage: {cpu_usage}%")
 
     root.update_idletasks()  # Forces all idle tasks to update at once
     root.after(100, update_display)
@@ -243,6 +255,12 @@ status_labels[2].grid(row=row_counter, column=2, columnspan=1, pady=12, padx=0, 
 # Call the schedule_daily_update function once to start the periodic updates
 update_date()
 schedule_daily_update()
+
+# # displaying the memory
+# print(tracemalloc.get_traced_memory())
+
+# # stopping the library
+# tracemalloc.stop()
 
 # Execute Tkinter
 root.mainloop()

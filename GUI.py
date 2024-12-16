@@ -10,7 +10,7 @@ selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_time
 toggle_state = False
 
 # Initialize the app and UI elements
-ctk.set_appearance_mode("light")
+ctk.set_appearance_mode("dark")
 # ctk.set_default_color_theme("green")
 light = "#f2f4f5"
 dark = "#212121"
@@ -18,7 +18,7 @@ dark = "#212121"
 root = ctk.CTk()
 
 root.title("Prayer Times - ISOC 24/25")
-root.geometry('1080x1920-1090-0')
+root.geometry('1080x1920+1090-0')
 
 main_frame = ctk.CTkFrame(master=root, fg_color=(light, dark))
 main_frame.pack(padx=10, pady=10, fill='both', expand=True)
