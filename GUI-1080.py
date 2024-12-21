@@ -23,7 +23,7 @@ dark = "#212121"
 root = ctk.CTk()
 
 root.title("Prayer Times - ISOC 24/25")
-root.geometry('1080x1920+1910+0')  # Width x Height + X + Y
+root.geometry('2560x1600+0+0')  # Width x Height + X + Y
 
 # Make the window fullscreen
 root.attributes("-fullscreen", True)
@@ -92,6 +92,57 @@ def status_toggle():
     toggle_state = not toggle_state
     root.after(5000, status_toggle)
 
+# Example of caching
+default_font = ("Roboto", 54, "bold")
+previous_values = {}
+
+
+def update_label(widget, key, new_value):
+    if previous_values.get(key) != new_value:
+        widget.configure(text=new_value)
+        previous_values[key] = new_value
+
+# Cache for previously updated indices
+previous_highlight = None
+
+def update_highlights(currentTime):
+    global previous_highlight
+
+    # Pre-check conditions outside the loop
+    if currentTime < act_times['Midnight']:
+        highlight_index = 5
+    elif currentTime < act_times['Fajr']:
+        return  # No highlighting needed
+    elif currentTime > act_times['Isha']:
+        highlight_index = 5
+    else:
+        # Check the loop-dependent conditions
+        highlight_index = None
+        for i in [1, 3, 4, 5, 6]:
+            next_prayer_time = act_times[prayer_headers[i]]
+            if currentTime < next_prayer_time:
+                highlight_index = i - 1
+                break
+
+    # Skip redundant updates
+    if highlight_index == previous_highlight:
+        return
+
+    # Reset previous highlights
+    if previous_highlight is not None:
+        prayer_labels[previous_highlight].configure(fg_color=(light, dark), text_color=("black", "white"))
+        act_time_labels[previous_highlight].configure(font=("Roboto", 54), fg_color=(light, dark), text_color=("black", "white"))
+        iqama_time_labels[previous_highlight].configure(font=("Roboto", 54), fg_color=(light, dark), text_color=("black", "white"))
+
+    # Apply new highlights
+    prayer_labels[highlight_index].configure(fg_color="#946d2e", text_color="white")
+    act_time_labels[highlight_index].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
+    iqama_time_labels[highlight_index].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
+
+    # Update the cache
+    previous_highlight = highlight_index
+
+
 def update_display():
     global toggle_state, notice_text, prayer_headers, act_times, iqama_times, display_act_times, display_iqama_times
     
@@ -100,7 +151,7 @@ def update_display():
     # root.update_idletasks()  # Forces all idle tasks to update at once
 
     # Caching repeated values
-    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(9)
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
     
     if toggle_state:
         date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
@@ -109,8 +160,10 @@ def update_display():
     
     # Updating date
     # 72, 48
-    date_label.configure(text=date_text, font=(switch_font, 54))
-    day_label.configure(text=day_text, font=(switch_font, 36))
+    # date_label.configure(text=date_text, font=(switch_font, 54))
+    # day_label.configure(text=day_text, font=(switch_font, 36))
+    update_label(date_label, "date_text", date if toggle_state else hijri)
+    update_label(day_label, "day_text", day if toggle_state else day_ar)
 
     # Time labels
     currenttime_labels[0].configure(text=f"{displayCurrentTime}")
@@ -123,36 +176,22 @@ def update_display():
     # Update Prayer Times - Using indices rather than repeated lookup
     for i in [0, 2, 3, 4, 5]:
         sel = prayer_headers[i]
-        prayer_labels[i].configure(text=prayer_headers[i] if toggle_state else prayer_headers_ar[i], font=(switch_font, prayer_size, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        
-    for i in [1, 3, 4, 5, 6]:
-        next = prayer_headers[i]
-        if currentTime < act_times['Midnight']:  # Compare current time with the actual time
-            prayer_labels[5].configure(fg_color="#946d2e", text_color="white")
-            act_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
-            break
-        if currentTime < act_times['Fajr']:  # Compare current time with the actual time
-            break
-        if currentTime < act_times['Dhuhr'] and i > 2:
-            break
-        elif currentTime < act_times[next]:  # Compare current time with the actual time
-            prayer_labels[i-1].configure(fg_color="#946d2e", text_color="white")
-            act_time_labels[i-1].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[i-1].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
-            break
-        elif currentTime > act_times['Isha']:
-            prayer_labels[5].configure(fg_color="#946d2e", text_color="white")
-            act_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
-            iqama_time_labels[5].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
-            break
+        # prayer_labels[i].configure(text=prayer_headers[i] if toggle_state else prayer_headers_ar[i], font=(switch_font, prayer_size, "normal"), fg_color=(light, dark), text_color=("black", "white"))
+        # act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
+        # iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
+        update_label(prayer_labels[i], f"prayer_{i}", prayer_headers[i] if toggle_state else prayer_headers_ar[i])
+        update_label(act_time_labels[i], f"act_time_{i}", display_act_times[sel])
+        update_label(iqama_time_labels[i], f"iqama_time_{i}", display_iqama_times[sel]) 
+    # Cache for previously updated indices
 
+    update_highlights(currentTime)
     # Status Labels - Only reconfigure when needed
-    status_labels[0].configure(text=f"{prayer_headers[1]}" if toggle_state else f"{prayer_headers[6]}")
-    status_labels[1].configure(text=f"{display_act_times['Sunrise']}" if toggle_state else f"{display_act_times['Midnight']}")
-    status_labels[2].configure(text=f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}")
+    # status_labels[0].configure(text=f"{prayer_headers[1]}" if toggle_state else f"{prayer_headers[6]}")
+    # status_labels[1].configure(text=f"{display_act_times['Sunrise']}" if toggle_state else f"{display_act_times['Midnight']}")
+    # status_labels[2].configure(text=f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}")
+    update_label(status_labels[0], "status_0", prayer_headers[1] if toggle_state else prayer_headers[6])
+    update_label(status_labels[1], "status_1", display_act_times["Sunrise"] if toggle_state else display_act_times["Midnight"])
+    update_label(status_labels[2], "status_2", prayer_headers_ar[1] if toggle_state else prayer_headers_ar[6])
 
     current_memory, peak_memory = tracemalloc.get_traced_memory()
     print(f"Current memory usage: {current_memory / 1024:.2f} KB; Peak: {peak_memory / 1024:.2f} KB")

@@ -47,7 +47,7 @@ def midnight(time_str1, time_str2, hours_to_add=12):
     return adjusted_time2
 
 def initializers():
-    df = pd.read_csv(r'C:\Users\Abdullah Usmani\Documents\MasjidClock\athan-plus-iqamah-time-clock\prayerTimes.csv')
+    df = pd.read_csv('./prayerTimes.csv')
 
     # Select only the relevant columns
     # relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']

@@ -1,3 +1,4 @@
 GUI-1080/
 build/
 dist/
+__pycache__/
