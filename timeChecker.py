@@ -118,27 +118,6 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
         'Zkh': 'القعدة ذي',
         'Zhj': 'الحجة ذي'
     }
-    # hijri_mapping = {
-    #     'Muh': 'Muharram',
-    #     'Saf': 'Safar',
-    #     'Raw': 'Rabi\' al-Awwal',
-    #     'Rak': 'Rabi\' al-Aakhir',
-    #     'Jam': 'Jumada al-Awwal',
-    #     'Jak': 'Jumada al-Aakhir',
-    #     'Rej': 'Rajab',
-    #     'Syb': 'Sha\'ban',
-    #     'Ram': 'Ramadan',
-    #     'Syw': 'Shawwal',
-    #     'Zkh': 'Dhu al-Qi\'dah',
-    #     'Zhj': 'Dhu al-Hijjah'
-    # }
-    # Define a function to replace the month abbreviation
-    # def replace_hijri_month(hijri_date):
-    #     parts = hijri_date.split('-')
-    #     if len(parts) > 1:
-    #         # Replace the second part (the month) with its full name
-    #         parts[1] = hijri_mapping.get(parts[1], parts[1])
-    #     return '-'.join(parts)
 
     arabic_numerals = {
         '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤',
@@ -169,7 +148,8 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
     currentMYT = time.localtime(time.mktime(currentUTC) + offset * 3600)  # Add 8 hours for GMT+8
     currentDate = time.strftime('%d-%b-%Y', currentMYT)
     found = False
-    for i in range (366): # got potential for error if not leap year
+    selectedRow = None
+    for i in range (365): # got potential for error if not leap year
         rowDate = df.loc[i, 'Date']
         Hijri = df.loc[i, 'Hijri']
         Day = df.loc[i, 'Day']
@@ -183,13 +163,12 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
     f_currentDate = currentDate_dt.strftime("%d-%B-%Y").lstrip("0")
 
     Hijri = replace_hijri_month(Hijri).replace('-', '  ')
-    # Hijri = Hijri.lstrip("0")
     f_currentDate = f_currentDate.replace('-', ' ')
 
 
     if not found:
         print("XX:XX - UPDATE REQUIRED")
-
+        return None, None, None, None, None, None, None, None, None, None, None
         # Create dictionaries to hold your times and display times
     act_time = {}
     iqama_time = {}
