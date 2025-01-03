@@ -45,9 +45,6 @@ rows_frame.pack(fill='both', expand=True, ipady=30, ipadx=60)
 rows_frame.columnconfigure((0,2), weight = 2, uniform='a')
 rows_frame.columnconfigure((1), weight = 1, uniform='a')
 rows_frame.rowconfigure((0,1,2,3,4,5), weight = 1, uniform='a')
-# rows_frame.rowconfigure((0,6), weight = 1, uniform='a')
-
-
 
 
 def get_milliseconds_until_midnight():
@@ -72,7 +69,7 @@ def schedule_daily_update():
     root.after(milliseconds_until_midnight, update_date)
 
 
-notice_text = ""
+notice_text = "scaled-back version"
 
 def input_dialog():
     dialog = ctk.CTkInputDialog(text="Enter a notice:", title="Notice Change")
@@ -130,12 +127,12 @@ def update_highlights(currentTime):
 
     # Reset previous highlights
     if previous_highlight is not None:
-        prayer_labels[previous_highlight].configure(fg_color=(light, dark), text_color=("black", "white"))
+        prayer_labels[previous_highlight].configure(font=("Roboto", 54), fg_color=(light, dark), text_color=("black", "white"))
         act_time_labels[previous_highlight].configure(font=("Roboto", 54), fg_color=(light, dark), text_color=("black", "white"))
         iqama_time_labels[previous_highlight].configure(font=("Roboto", 54), fg_color=(light, dark), text_color=("black", "white"))
 
     # Apply new highlights
-    prayer_labels[highlight_index].configure(fg_color="#946d2e", text_color="white")
+    prayer_labels[highlight_index].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
     act_time_labels[highlight_index].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
     iqama_time_labels[highlight_index].configure(font=("Roboto", 54, "bold"), fg_color="#946d2e", text_color="white")
 
@@ -148,22 +145,18 @@ def update_display():
     
     notice.configure(text=notice_text)
 
-    # root.update_idletasks()  # Forces all idle tasks to update at once
-
     # Caching repeated values
     currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
     
     if toggle_state:
         date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
     else:
-        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 54, "Roboto", "أذان", "إقامة", 39
+        date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
+        # date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 54, "Roboto", "أذان", "إقامة", 39
     
     # Updating date
-    # 72, 48
-    # date_label.configure(text=date_text, font=(switch_font, 54))
-    # day_label.configure(text=day_text, font=(switch_font, 36))
-    update_label(date_label, "date_text", date if toggle_state else hijri)
-    update_label(day_label, "day_text", day if toggle_state else day_ar)
+    update_label(date_label, "date_text", date)
+    update_label(day_label, "day_text", day)
 
     # Time labels
     currenttime_labels[0].configure(text=f"{displayCurrentTime}")
@@ -176,22 +169,15 @@ def update_display():
     # Update Prayer Times - Using indices rather than repeated lookup
     for i in [0, 2, 3, 4, 5]:
         sel = prayer_headers[i]
-        # prayer_labels[i].configure(text=prayer_headers[i] if toggle_state else prayer_headers_ar[i], font=(switch_font, prayer_size, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        # act_time_labels[i].configure(text=f"{display_act_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        # iqama_time_labels[i].configure(text=f"{display_iqama_times[sel]}", font=("Roboto", 54, "normal"), fg_color=(light, dark), text_color=("black", "white"))
-        update_label(prayer_labels[i], f"prayer_{i}", prayer_headers[i] if toggle_state else prayer_headers_ar[i])
+        update_label(prayer_labels[i], f"prayer_{i}", prayer_headers[i])
         update_label(act_time_labels[i], f"act_time_{i}", display_act_times[sel])
         update_label(iqama_time_labels[i], f"iqama_time_{i}", display_iqama_times[sel]) 
     # Cache for previously updated indices
 
     update_highlights(currentTime)
-    # Status Labels - Only reconfigure when needed
-    # status_labels[0].configure(text=f"{prayer_headers[1]}" if toggle_state else f"{prayer_headers[6]}")
-    # status_labels[1].configure(text=f"{display_act_times['Sunrise']}" if toggle_state else f"{display_act_times['Midnight']}")
-    # status_labels[2].configure(text=f"{prayer_headers_ar[1]}" if toggle_state else f"{prayer_headers_ar[6]}")
-    update_label(status_labels[0], "status_0", prayer_headers[1] if toggle_state else prayer_headers[6])
-    update_label(status_labels[1], "status_1", display_act_times["Sunrise"] if toggle_state else display_act_times["Midnight"])
-    update_label(status_labels[2], "status_2", prayer_headers_ar[1] if toggle_state else prayer_headers_ar[6])
+    update_label(status_labels[0], "status_0", prayer_headers[1])
+    update_label(status_labels[1], "status_1", display_act_times["Sunrise"])
+    update_label(status_labels[2], "status_2", prayer_headers_ar[1])
 
     current_memory, peak_memory = tracemalloc.get_traced_memory()
     print(f"Current memory usage: {current_memory / 1024:.2f} KB; Peak: {peak_memory / 1024:.2f} KB")
@@ -272,7 +258,7 @@ for i in range(len(prayer_headers)):
         continue  # Skip the element at index 7
     
     sel = prayer_headers[i]
-    prayer_labels[i] = ctk.CTkLabel(master=rows_frame)
+    prayer_labels[i] = ctk.CTkLabel(master=rows_frame,  font=("Roboto", 48))
     prayer_labels[i].grid(row=row_counter, column=1, pady=6, sticky="nsew")
     
     act_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 48))
@@ -294,12 +280,4 @@ status_labels[2].grid(row=row_counter, column=2, columnspan=1, pady=12, padx=0, 
 # Call the schedule_daily_update function once to start the periodic updates
 update_date()
 schedule_daily_update()
-
-# # displaying the memory
-# print(tracemalloc.get_traced_memory())
-
-# # stopping the library
-# tracemalloc.stop()
-
-# Execute Tkinter
 root.mainloop()

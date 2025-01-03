@@ -47,9 +47,6 @@ rows_frame.columnconfigure((1), weight = 1, uniform='a')
 rows_frame.rowconfigure((0,1,2,3,4,5), weight = 1, uniform='a')
 # rows_frame.rowconfigure((0,6), weight = 1, uniform='a')
 
-
-
-
 def get_milliseconds_until_midnight():
     now = time.gmtime()  
     now = time.localtime(time.mktime(now) + 8 * 5400)  
