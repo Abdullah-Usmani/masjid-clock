@@ -48,13 +48,11 @@ rows_frame.columnconfigure((1), weight = 1, uniform='a')
 rows_frame.rowconfigure((0,1,2,3,4,5), weight = 1, uniform='a')
 
 
-def get_milliseconds_until_midnight():
-    now = time.gmtime()  
-    now = time.localtime(time.mktime(now) + 8 * 5400)  
-    now_datetime = datetime.datetime(year=now.tm_year, month=now.tm_mon, day=now.tm_mday,
-                                     hour=now.tm_hour, minute=now.tm_min, second=now.tm_sec)
-    midnight = datetime.datetime.combine(now_datetime.date() + datetime.timedelta(days=1), datetime.time(0, 0))
-    remaining_time = midnight - now_datetime
+def get_milliseconds_until_midnight(offset):
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+    midnight = datetime.datetime.combine(now.date() + datetime.timedelta(days=1), datetime.time(0, 0))
+    remaining_time = midnight - now
+    # print("Remaining time until midnight:", remaining_time)
     return int(remaining_time.total_seconds() * 1000)  # Convert seconds to milliseconds
 
 def update_date():
@@ -66,7 +64,7 @@ def update_date():
     root.after(86400000, update_date)
 
 def schedule_daily_update():
-    milliseconds_until_midnight = get_milliseconds_until_midnight()
+    milliseconds_until_midnight = get_milliseconds_until_midnight(8)
     root.after(milliseconds_until_midnight, update_date)
 
 
