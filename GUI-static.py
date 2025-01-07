@@ -2,7 +2,7 @@ from tkinter import *
 from timeChecker import *
 from PIL import Image
 import customtkinter as ctk
-import datetime
+from datetime import datetime, timedelta, timezone
 import time
 # import tracemalloc
 # import psutil
@@ -49,11 +49,12 @@ rows_frame.rowconfigure((0,1,2,3,4,5), weight = 1, uniform='a')
 
 
 def get_milliseconds_until_midnight(offset):
-    now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
-    midnight = datetime.datetime.combine(now.date() + datetime.timedelta(days=1), datetime.time(0, 0))
+    # Get the current UTC time with timezone awareness
+    now = datetime.now(timezone.utc) + timedelta(hours=offset)
+    midnight = datetime.combine(now.date() + timedelta(days=1), datetime.min.time(), tzinfo=now.tzinfo)
     remaining_time = midnight - now
-    # print("Remaining time until midnight:", remaining_time)
-    return int(remaining_time.total_seconds() * 1000)  # Convert seconds to milliseconds
+    print("Remaining time until midnight:", remaining_time)
+    return int(remaining_time.total_seconds() * 1000)
 
 def update_date():
     global selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_times, display_act_times, display_iqama_times 
@@ -108,7 +109,7 @@ def update_highlights(currentTime):
     # Pre-check conditions outside the loop
     if currentTime < act_times['Midnight']:
         highlight_index = 5
-    elif currentTime < act_times['Fajr']:
+    elif currentTime < act_times['Fajr'] or currentTime < act_times['Dhuhr']:
         return  # No highlighting needed
     elif currentTime > act_times['Isha']:
         highlight_index = 5
@@ -146,7 +147,7 @@ def update_display():
     notice.configure(text=notice_text)
 
     # Caching repeated values
-    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(9)
     
     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
     # if toggle_state:
