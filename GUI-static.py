@@ -4,11 +4,6 @@ from PIL import Image
 import customtkinter as ctk
 from datetime import datetime, timedelta, timezone
 import time
-# import tracemalloc
-# import psutil
-
-# starting the monitoring
-# tracemalloc.start()
 
 df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
 selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_times, display_act_times, display_iqama_times  = dateComparer(df, prayer_headers, iqama_headers, 8)
@@ -24,7 +19,7 @@ root = ctk.CTk()
 
 root.title("Prayer Times - ISOC 24/25")
 root.geometry('1080x1920+1910+0')  # Width x Height + X + Y
-# root.geometry('2560x1600+0+0')  # Width x Height + X + Y
+# root.geometry('2550x1500+0+0')  # Width x Height + X + Y
 
 # Make the window fullscreen
 root.attributes("-fullscreen", True)
@@ -42,7 +37,7 @@ prayer_frame = ctk.CTkFrame(master=main_frame, fg_color=(light, dark))
 prayer_frame.place(x=0,rely=0.45,relwidth=1,relheight=.55)
 
 rows_frame = ctk.CTkFrame(master=prayer_frame, fg_color=(light, dark))
-rows_frame.pack(fill='both', expand=True, ipady=30, ipadx=60)
+rows_frame.pack(fill='both', expand=True, ipady=30, ipadx=50)
 rows_frame.columnconfigure((0,2), weight = 2, uniform='a')
 rows_frame.columnconfigure((1), weight = 1, uniform='a')
 rows_frame.rowconfigure((0,1,2,3,4,5), weight = 1, uniform='a')
@@ -83,7 +78,7 @@ def show_dialog():
     notice_text = input_dialog()  # Get input from the user and update the variable
 
 # Bind the key (e.g., "d" key) to the dialog function
-root.bind("<e>", lambda event: show_dialog())  # You can change "d" to any ke
+root.bind("<e>", lambda event: show_dialog())  # You can change "d" to any key
 
 def status_toggle():
     global toggle_state
@@ -109,14 +104,23 @@ def update_highlights(currentTime):
     # Pre-check conditions outside the loop
     if currentTime < act_times['Midnight']:
         highlight_index = 5
-    elif currentTime < act_times['Fajr'] or currentTime < act_times['Dhuhr']:
-        return  # No highlighting needed
+        # print("Time < Midnight")
+    elif currentTime < act_times['Fajr']:
+        highlight_index = None
+        # print("Time < Fajr")
+    elif currentTime > act_times['Fajr'] and currentTime < act_times['Sunrise']:
+        highlight_index = 0
+        # print("Time == Fajr")
+    elif currentTime < act_times['Dhuhr']:
+        highlight_index = None
+        # print("Time == Morning")
     elif currentTime > act_times['Isha']:
         highlight_index = 5
+        # print("Time == Isha")
     else:
         # Check the loop-dependent conditions
         highlight_index = None
-        for i in [1, 3, 4, 5, 6]:
+        for i in [3, 4, 5, 6]:
             next_prayer_time = act_times[prayer_headers[i]]
             if currentTime < next_prayer_time:
                 highlight_index = i - 1
@@ -124,18 +128,20 @@ def update_highlights(currentTime):
 
     # Skip redundant updates
     if highlight_index == previous_highlight:
+        # print("Skipping redundant update")
         return
 
     # Reset previous highlights
     if previous_highlight is not None:
-        prayer_labels[previous_highlight].configure(font=("Roboto", 36), fg_color=(light, dark), text_color=("black", "white"))
-        act_time_labels[previous_highlight].configure(font=("Roboto", 48), fg_color=(light, dark), text_color=("black", "white"))
-        iqama_time_labels[previous_highlight].configure(font=("Roboto", 48), fg_color=(light, dark), text_color=("black", "white"))
+        prayer_labels[previous_highlight].configure(font=("Roboto", 50), fg_color=(light, dark), text_color=("black", "white"))
+        act_time_labels[previous_highlight].configure(font=("Roboto", 80), fg_color=(light, dark), text_color=("black", "white"))
+        iqama_time_labels[previous_highlight].configure(font=("Roboto", 80), fg_color=(light, dark), text_color=("black", "white"))
 
     # Apply new highlights
-    prayer_labels[highlight_index].configure(font=("Roboto", 36, "bold"), fg_color="#946d2e", text_color="white")
-    act_time_labels[highlight_index].configure(font=("Roboto", 48, "bold"), fg_color="#946d2e", text_color="white")
-    iqama_time_labels[highlight_index].configure(font=("Roboto", 48, "bold"), fg_color="#946d2e", text_color="white")
+    if highlight_index is not None:
+        prayer_labels[highlight_index].configure(font=("Roboto", 50, "bold"), fg_color="#946d2e", text_color="white")
+        act_time_labels[highlight_index].configure(font=("Roboto", 80, "bold"), fg_color="#946d2e", text_color="white")
+        iqama_time_labels[highlight_index].configure(font=("Roboto", 80, "bold"), fg_color="#946d2e", text_color="white")
 
     # Update the cache
     previous_highlight = highlight_index
@@ -147,14 +153,13 @@ def update_display():
     notice.configure(text=notice_text)
 
     # Caching repeated values
-    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(9)
+    currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
     
     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
     # if toggle_state:
     #     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
     # else:
-    #     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
-        # date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 54, "Roboto", "أذان", "إقامة", 39
+    #     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 54, "Roboto", "أذان", "إقامة", 39
     
     # Updating date
     update_label(date_label, "date_text", date)
@@ -182,13 +187,6 @@ def update_display():
     update_label(status_labels[1], "status_1", display_act_times["Sunrise"])
     update_label(status_labels[2], "status_2", prayer_headers_ar[1])
 
-    # current_memory, peak_memory = tracemalloc.get_traced_memory()
-    # print(f"Current memory usage: {current_memory / 1024:.2f} KB; Peak: {peak_memory / 1024:.2f} KB")
-
-    # Track CPU usage
-    # cpu_usage = psutil.cpu_percent(interval=0.1)  # Non-blocking
-    # print(f"CPU Usage: {cpu_usage}%")
-
     root.update_idletasks()  # Forces all idle tasks to update at once
     root.after(100, update_display)
 
@@ -198,14 +196,14 @@ my_image = ctk.CTkImage(light_image=Image.open("Images/ISoc (black).png"),
 image_label = ctk.CTkLabel(info_frame, image=my_image, text="")
 image_label.pack(expand=True, pady=(20,40))
 
-date_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 24))
+date_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 60))
 date_label.pack(expand=True)
 
-hijri_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 32))
-hijri_label.pack(expand=True, ipady=20)
+hijri_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 60))
+hijri_label.pack(expand=True, ipady=10)
 
-day_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 18))
-day_label.pack(expand=True, ipady=40)
+day_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 48))
+day_label.pack(expand=True, ipady=10)
 
 currenttime_labels = {}
 
@@ -215,13 +213,13 @@ time_frame.pack(fill='none',expand=False)
 
 # Add elements to the container frame using `grid()`
 # 150 time, 
-currenttime_labels[0] = ctk.CTkLabel(master=time_frame, font=("Roboto", 100, "bold")) 
+currenttime_labels[0] = ctk.CTkLabel(master=time_frame, font=("Roboto", 150, "bold")) 
 currenttime_labels[0].grid(row=0, column=2, padx=(0, 5), pady=10)
 
-currenttime_labels[1] = ctk.CTkLabel(master=time_frame, font=("Roboto", 36, "bold"))
+currenttime_labels[1] = ctk.CTkLabel(master=time_frame, font=("Roboto", 50, "bold"))
 currenttime_labels[1].grid(row=0, column=3, padx=(5, 5), pady=10)
 
-currenttime_labels[2] = ctk.CTkLabel(master=time_frame, font=("Roboto", 36, "normal"))
+currenttime_labels[2] = ctk.CTkLabel(master=time_frame, font=("Roboto", 50, "normal"))
 currenttime_labels[2].grid(row=0, column=4, padx=(5, 5), pady=10)
 ctk.CTkLabel(time_frame, text="").grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 ctk.CTkLabel(time_frame, text="").grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
@@ -262,21 +260,21 @@ for i in range(len(prayer_headers)):
         continue  # Skip the element at index 7
     
     sel = prayer_headers[i]
-    prayer_labels[i] = ctk.CTkLabel(master=rows_frame,  font=("Roboto", 36))
+    prayer_labels[i] = ctk.CTkLabel(master=rows_frame,  font=("Roboto", 50))
     prayer_labels[i].grid(row=row_counter, column=1, pady=6, sticky="nsew")
     
-    act_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 48))
+    act_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 80))
     act_time_labels[i].grid(row=row_counter, column=0, pady=6, sticky="nsew")
     
-    iqama_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 48))
+    iqama_time_labels[i] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 80))
     iqama_time_labels[i].grid(row=row_counter, column=2, pady=6, sticky="nsew")
     
     row_counter += 1  # Increment row counter for the next set of labels
 
 
-status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 36), fg_color=("#969696", "#383838"))
+status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 50), fg_color=("#969696", "#383838"))
 status_labels[0].grid(row=row_counter, column=0, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 36), fg_color=("#969696", "#383838"))
+status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 50), fg_color=("#969696", "#383838"))
 status_labels[1].grid(row=row_counter, column=1, columnspan=1, pady=12, padx=0, sticky="nsew")
 status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 42), fg_color=("#969696", "#383838"))
 status_labels[2].grid(row=row_counter, column=2, columnspan=1, pady=12, padx=0, sticky="nsew")
