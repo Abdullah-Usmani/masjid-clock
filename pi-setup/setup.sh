@@ -42,7 +42,7 @@ python get-pip.py
 
 # Install Python packages
 echo "Installing Python libraries..."
-# pip install --upgrade pip
+pip install --upgrade pip
 sudo chown -R raspberrypisoc /home/raspberrypisoc/MasjidClock/myenv/lib/python3.11/
 pip install numpy pandas Pillow customtkinter bs4 selenium arabic_reshaper python-bidi
 
