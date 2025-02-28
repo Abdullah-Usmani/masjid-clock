@@ -213,7 +213,6 @@ time_frame = ctk.CTkFrame(master=info_frame, fg_color=(light, dark))
 time_frame.pack(fill='none',expand=False)
 
 # Add elements to the container frame using `grid()`
-# 150 time, 
 currenttime_labels[0] = ctk.CTkLabel(master=time_frame, font=("Roboto", 150, "bold")) 
 currenttime_labels[0].grid(row=0, column=2, padx=(0, 5), pady=10)
 
@@ -273,11 +272,11 @@ for i in range(len(prayer_headers)):
     row_counter += 1  # Increment row counter for the next set of labels
 
 
-status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 30), fg_color=("#969696", "#383838"))
+status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 40), fg_color=("#969696", "#383838"))
 status_labels[0].grid(row=row_counter, column=0, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 30), fg_color=("#969696", "#383838"))
+status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 25), fg_color=("#969696", "#383838"))
 status_labels[1].grid(row=row_counter, column=1, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 30), fg_color=("#969696", "#383838"))
+status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 40), fg_color=("#969696", "#383838"))
 status_labels[2].grid(row=row_counter, column=2, columnspan=1, pady=12, padx=0, sticky="nsew")
 
 # Call the schedule_daily_update function once to start the periodic updates
