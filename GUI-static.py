@@ -3,7 +3,9 @@ from timeChecker import *
 from PIL import Image
 import customtkinter as ctk
 from datetime import datetime, timedelta, timezone
-import time
+import arabic_reshaper
+from bidi.algorithm import get_display
+
 
 df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
 selectedRow, date, hijri, day, day_ar, headers, foundFlag, act_times, iqama_times, display_act_times, display_iqama_times  = dateComparer(df, prayer_headers, iqama_headers, 8)
@@ -65,7 +67,7 @@ def schedule_daily_update():
     root.after(milliseconds_until_midnight, update_date)
 
 
-notice_text = "scaled-back version"
+notice_text = "test version - TARAWEEH AFTER 'ISHA"
 
 def input_dialog():
     dialog = ctk.CTkInputDialog(text="Enter a notice:", title="Notice Change")
@@ -156,14 +158,13 @@ def update_display():
     currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian = timeComparer(8)
     
     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
-    # if toggle_state:
-    #     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = date, day, 42, "Roboto", "Adhan", "Iqamah", 27
-    # else:
-    #     date_text, day_text, prayer_size, switch_font, adhan_text, iqamah_text, adhan_size = hijri, day_ar, 54, "Roboto", "أذان", "إقامة", 39
     
+    reshaped_hijri = arabic_reshaper.reshape(hijri)
+    bidi_text = get_display(reshaped_hijri)
+
     # Updating date
     update_label(date_label, "date_text", date)
-    update_label(hijri_label, "hijri_text", hijri)
+    update_label(hijri_label, "hijri_text", bidi_text)
     update_label(day_label, "day_text", day)
 
     # Time labels
@@ -183,9 +184,9 @@ def update_display():
     # Cache for previously updated indices
 
     update_highlights(currentTime)
-    update_label(status_labels[0], "status_0", prayer_headers[1])
-    update_label(status_labels[1], "status_1", display_act_times["Sunrise"])
-    update_label(status_labels[2], "status_2", prayer_headers_ar[1])
+    update_label(status_labels[0], "status_0", display_act_times["Sunrise"])
+    update_label(status_labels[1], "status_1", f"< {prayer_headers[1]} | {prayer_headers[6]} >")
+    update_label(status_labels[2], "status_2", display_act_times["Midnight"])
 
     root.update_idletasks()  # Forces all idle tasks to update at once
     root.after(100, update_display)
@@ -272,11 +273,11 @@ for i in range(len(prayer_headers)):
     row_counter += 1  # Increment row counter for the next set of labels
 
 
-status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 50), fg_color=("#969696", "#383838"))
+status_labels[0] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 30), fg_color=("#969696", "#383838"))
 status_labels[0].grid(row=row_counter, column=0, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 50), fg_color=("#969696", "#383838"))
+status_labels[1] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 30), fg_color=("#969696", "#383838"))
 status_labels[1].grid(row=row_counter, column=1, columnspan=1, pady=12, padx=0, sticky="nsew")
-status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 42), fg_color=("#969696", "#383838"))
+status_labels[2] = ctk.CTkLabel(master=rows_frame, font=("Roboto", 30), fg_color=("#969696", "#383838"))
 status_labels[2].grid(row=row_counter, column=2, columnspan=1, pady=12, padx=0, sticky="nsew")
 
 # Call the schedule_daily_update function once to start the periodic updates

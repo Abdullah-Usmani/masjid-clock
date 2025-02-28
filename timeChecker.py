@@ -50,7 +50,6 @@ def initializers():
     df = pd.read_csv('./prayerTimes.csv')
 
     # Select only the relevant columns
-    # relevant_columns = ['Date', 'Hijri', 'Day', 'Imsak', 'Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
     relevant_columns = ['Date', 'Hijri', 'Day', 'Day_Arabic', 'Imsak', 'Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight']
     prayer_headers_old = ['Fajr', 'Syuruk', 'Zohor', 'Asar', 'Maghrib', 'Isyak', 'Midnight']
     prayer_headers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight']
@@ -104,6 +103,21 @@ def initializers():
 
 def dateComparer(df, prayer_headers, iqama_headers, offset):
 
+    # hijri_mapping_en = {
+    #     'Muh': 'Muharram',
+    #     'Saf': 'Safar',
+    #     'Raw': 'Rabiul Awal',
+    #     'Rak': 'Rabiul Akhir',
+    #     'Jaw': 'Jumadil Ula',
+    #     'Jak': 'Jumadil Akhira',
+    #     'Rej': 'Rajab',
+    #     'Syb': 'Shaban',
+    #     'Ram': 'Ramadhan',
+    #     'Syw': 'Shawwal',
+    #     'Zkh': 'Dhul Qadah',
+    #     'Zhj': 'Dhul Hijjah'
+    # }
+
     hijri_mapping_ar = {
         'Muh': 'محرم',
         'Saf': 'صفر',
@@ -139,7 +153,7 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
             monthX = parts[1]
             yearX = convert_to_arabic_numerals(parts[2])
 
-            formatted_hijri = f"{yearX}-{monthX}-{dayX}"
+            formatted_hijri = f"{dayX}-{monthX}-{yearX}"
 
             return formatted_hijri
         return hijri_date
@@ -202,19 +216,5 @@ def timeComparer(offset):
     displayCurrentTime = f"{hour}:{currentMYT.tm_min:02}"
     displayCurrentTime_s = f"{currentMYT.tm_sec:02}"
     displayCurrentTime_meridian = f"{'AM' if currentMYT.tm_hour < 12 else 'PM'}"
-    
 
-
-    # for i in range(len(prayer_headers)):  # Iterate over the prayer headers
-    #     next = prayer_headers[i]
-    #     curr = prayer_headers[i-1]
-    #     if currentTime < act_time[next]:  # Compare current time with the actual time
-    #         break
-    #     elif currentTime > act_time['Isyak']:
-    #         break
     return currentTime, displayCurrentTime, displayCurrentTime_s, displayCurrentTime_meridian
-
-# # Run initializers and dateComparer as needed
-# df, prayer_headers, prayer_headers_ar, iqama_headers = initializers()
-# selectedRow, date, hijri, day, day_ar, headers, foundFlag = dateComparer(df, prayer_headers, 8)
-# currentTime, displayCurrentTime, act_times, iqama_times, display_act_times, display_iqama_times, current_prayer, next_prayer = timeComparer(selectedRow, df, prayer_headers, iqama_headers, 8)
