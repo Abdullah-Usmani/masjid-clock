@@ -36,12 +36,14 @@ cd "$PROJECT_DIR"
 # Set up virtual environment
 echo "Creating virtual environment..."
 python3 -m venv myenv
+wget https://bootstrap.pypa.io/get-pip.py
 source myenv/bin/activate
+python get-pip.py
 
 # Install Python packages
 echo "Installing Python libraries..."
-pip install --upgrade pip
-pip install numpy pandas Pillow customtkinter bs4 selenium
+# pip install --upgrade pip
+pip install numpy pandas Pillow customtkinter bs4 selenium arabic_reshaper python-bidi
 
 # Deactivate virtual environment
 deactivate
