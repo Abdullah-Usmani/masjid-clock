@@ -4,3 +4,7 @@ GUI-1080/
 build/
 dist/
 __pycache__/
+README.md
+LICENSE.md
+prayerTimes_v2concept.csv
+prayerTimes.csv
