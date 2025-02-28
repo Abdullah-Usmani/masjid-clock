@@ -111,7 +111,7 @@ sudo systemctl start masjid_clock.service
 ---
 
 ## Credits
-Developed by **[Your Name]**. Feel free to contribute or suggest improvements.
+Developed by **Abdullah Usmani**, contributions by **Dean Agha Koeswantoro**. Feel free to contribute or suggest improvements.
 
 ---
 
