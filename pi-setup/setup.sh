@@ -19,7 +19,7 @@ python3-pip python3-venv
 PI_NAME="raspberrypisoc"
 USER_HOME="/home/$PI_NAME"
 PROJECT_DIR="$USER_HOME/MasjidClock"
-BOOT_DIR="/boot/MasjidClock"
+BOOT_DIR="/boot/firmware/MasjidClock"
 
 # Check if the MasjidClock folder exists in /boot and copy it to home directory
 if [ -d "$BOOT_DIR" ]; then
