@@ -48,7 +48,7 @@ myenv/bin/python get-pip.py
 
 Install the required Python libraries:
 ```bash
-pip install numpy pandas Pillow customtkinter bs4 selenium
+pip install numpy pandas Pillow tkinter customtkinter bs4 selenium arabic_reshaper python-bidi
 ```
 
 ---
@@ -111,7 +111,7 @@ sudo systemctl start masjid_clock.service
 ---
 
 ## Credits
-Developed by **[Your Name]**. Feel free to contribute or suggest improvements.
+Developed by **Abdullah Usmani**, contributions by **Dean Agha Koeswantoro**. Feel free to contribute or suggest improvements.
 
 ---
 
