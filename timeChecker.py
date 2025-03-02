@@ -196,6 +196,9 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
         display_act_time[i] = f"{int(act_time[i].strftime('%I'))}:{act_time[i].strftime('%M %p')}"
         display_iqama_time[i] = f"{int(iqama_time[i].strftime('%I'))}:{iqama_time[i].strftime('%M %p')}"
 
+    # Special handling for Isha fixed delay in Ramadan
+    iqama_time['Isha'] = datetime.strptime("9:15 PM", "%I:%M %p").time()
+    display_iqama_time['Isha'] = f"{int(iqama_time['Isha'].strftime('%I'))}:{iqama_time['Isha'].strftime('%M %p')}"
         
     return selectedRow, f_currentDate, Hijri, Day, Day_ar, prayer_headers, found, act_time, iqama_time, display_act_time, display_iqama_time 
 
