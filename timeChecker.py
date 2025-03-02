@@ -168,7 +168,6 @@ def dateComparer(df, prayer_headers, iqama_headers, offset):
         Hijri = df.loc[i, 'Hijri']
         Day = df.loc[i, 'Day']
         Day_ar = df.loc[i, 'Day_Arabic']
-        i += 1
         if rowDate == currentDate:
             found = True
             selectedRow = i
