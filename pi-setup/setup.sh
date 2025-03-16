@@ -53,7 +53,7 @@ deactivate
 # Enable I2C for RTC module (DS3231)
 echo "Setting up DS3231 RTC module..."
 sudo raspi-config nonint do_i2c 0
-echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt > /dev/null
+echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/firmware/config.txt > /dev/null
 
 # Fix fake-hwclock to prevent conflicts
 sudo apt remove -y fake-hwclock
@@ -62,17 +62,6 @@ sudo systemctl disable fake-hwclock
 
 # Update system time from RTC on boot
 echo "hwclock --hctosys" | sudo tee -a /etc/rc.local > /dev/null
-
-# Configure Boot Display Settings
-echo "Configuring display settings..."
-sudo tee -a /boot/config.txt > /dev/null <<EOT
-framebuffer_width=1920
-framebuffer_height=1080
-hdmi_force_hotplug=1
-hdmi_group=1
-hdmi_mode=16
-display_hdmi_rotate=1
-EOT
 
 # Create the run script
 echo "Creating run_clock.sh..."
