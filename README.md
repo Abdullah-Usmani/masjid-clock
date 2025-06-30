@@ -9,7 +9,7 @@ However, due to the limitations of the Raspberry Pi Zero W, some performance iss
 
 ## Features
 - Displays prayer times dynamically using **CustomTkinter**.
-- Auto-starts on boot using a **systemd service**.
+- Auto-starts on boot using **systemd service**.
 - Simple shell script for launching the application.
 - Supports screen orientation and resolution configuration.
 
@@ -117,14 +117,3 @@ Developed by **Abdullah Usmani**, contributions by **Dean Agha Koeswantoro**. Fe
 
 ## License
 This project is licensed under **MIT License**. See the LICENSE file for details.
-
----
-
-### Additional Notes
-- If the system crashes or freezes frequently, consider **upgrading to a Raspberry Pi 4** for better performance.
-- To fix **Arabic font issues**, install proper fonts and ensure right-to-left text rendering support is enabled.
-- If experiencing delays, consider implementing an **RTC module** to maintain accurate time.
-
----
-
-This README provides a complete guide to installing, configuring, and running the Masjid Clock. If you encounter issues, feel free to modify or enhance the script based on your requirements.
