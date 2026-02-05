@@ -104,6 +104,16 @@ sudo systemctl start masjid_clock.service
 # sudo raspi-config nonint do_resolution 1920 1080
 # sudo raspi-config nonint do_display_orientation 1  # 1 = 90 degrees (left)
 
+echo "Setting up daily 3AM reboot cronjob..."
+
+# Install cron if not installed
+sudo apt install -y cron
+sudo systemctl enable cron
+sudo systemctl start cron
+
+# Add reboot cronjob (avoid duplicates)
+( sudo crontab -l 2>/dev/null | grep -v "/sbin/reboot" ; echo "0 3 * * * /sbin/reboot" ) | sudo crontab -
+
 echo "Masjid Clock setup completed!"
 echo "Rebooting system..."
 sudo reboot

@@ -3,7 +3,7 @@ import csv
 
 "Made this because I found the api link from inspecting the network tab of the website. Instead of parsing the data from a chrome instance"
 
-url = "https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=year&zone=SGR03"  # Replace with your JSON URL
+url = "https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&period=year&zone=SGR01"  # Replace with your JSON URL
 response = requests.get(url)
 
 if response.status_code == 200:
