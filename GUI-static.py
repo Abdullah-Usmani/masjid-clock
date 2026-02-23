@@ -9,7 +9,7 @@ import os
 from time_checker import process_prayer_data, time_comparer
 
 # --- CONFIG ---
-OFFSET = 8
+OFFSET = 2.2
 PRAYER_DATABASE = process_prayer_data('./prayerTimes.csv')
 CURRENT_DAY_DATA = None
 GOLD = "#946d2e"
@@ -34,7 +34,7 @@ def refresh_daily_data():
 ctk.set_appearance_mode("dark")
 root = ctk.CTk()
 root.title("Prayer Times - ISOC Static")
-root.geometry('1080x1920+1910+0') # Portrait resolution
+root.geometry('1080x1920') # Portrait resolution
 root.attributes("-fullscreen", True)
 root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
 
@@ -84,24 +84,56 @@ def get_countdown_text():
 def update_highlights(currentTime):
     global previous_highlight
     if not CURRENT_DAY_DATA: return
-    times, m_time = CURRENT_DAY_DATA['Times'], CURRENT_DAY_DATA['Midnight']
-    p_keys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
-    g_map = {0: 0, 1: 2, 2: 3, 3: 4, 4: 5}
+    
+    times = CURRENT_DAY_DATA['Times']
+    m_time = CURRENT_DAY_DATA['Midnight']
+    
+    # Define specific active windows for highlighting
+    # Logic: Highlight is ONLY active from the start of the prayer time
+    # until the 'cutoff' event (Sunrise for Fajr, or the next prayer).
+    
+    highlight_index = None
 
-    h_idx = 5 if (currentTime < m_time or currentTime > times['Isha']) else None
-    if h_idx is None and currentTime >= times['Fajr']:
-        for i, k in enumerate(p_keys):
-            if currentTime < times[k]:
-                h_idx = g_map.get(i-1); break
+    # Window 1: Isha / Midnight (Isha -> Midnight)
+    if currentTime >= times['Isha'] or currentTime < m_time:
+        highlight_index = 5
+    # Window 2: Fajr (Fajr -> Sunrise)
+    elif times['Fajr'] <= currentTime < times['Sunrise']:
+        highlight_index = 0
+    # Window 3: Dhuhr (Dhuhr -> Asr)
+    elif times['Dhuhr'] <= currentTime < times['Asr']:
+        highlight_index = 2
+    # Window 4: Asr (Asr -> Maghrib)
+    elif times['Asr'] <= currentTime < times['Maghrib']:
+        highlight_index = 3
+    # Window 5: Maghrib (Maghrib -> Isha)
+    elif times['Maghrib'] <= currentTime < times['Isha']:
+        highlight_index = 4
+    
+    # If currentTime is between Sunrise and Dhuhr, highlight_index remains None.
 
-    if h_idx == previous_highlight: return
+    if highlight_index == previous_highlight:
+        return
+    
+    # Reset old highlight if it exists
     if previous_highlight is not None:
-        for lbl in [prayer_labels, act_time_labels, iqama_time_labels]:
-            lbl[previous_highlight].configure(fg_color="transparent", text_color=("black", "white"), font=("Roboto", 50 if lbl==prayer_labels else 80))
-    if h_idx is not None:
-        for lbl in [prayer_labels, act_time_labels, iqama_time_labels]:
-            lbl[h_idx].configure(fg_color=GOLD, text_color="white", font=("Roboto", 50 if lbl==prayer_labels else 80, "bold"))
-    previous_highlight = h_idx
+        for lbl_dict in [prayer_labels, act_time_labels, iqama_time_labels]:
+            lbl_dict[previous_highlight].configure(
+                fg_color="transparent", 
+                text_color=("black", "white"), 
+                font=("Roboto", 50 if lbl_dict==prayer_labels else 80)
+            )
+            
+    # Apply new highlight if we are in an active window
+    if highlight_index is not None:
+        for lbl_dict in [prayer_labels, act_time_labels, iqama_time_labels]:
+            lbl_dict[highlight_index].configure(
+                fg_color=GOLD, 
+                text_color="white", 
+                font=("Roboto", 50 if lbl_dict==prayer_labels else 80, "bold")
+            )
+            
+    previous_highlight = highlight_index
 
 def update_display():
     cTime, dTime, dSec, dMer = time_comparer(OFFSET)
