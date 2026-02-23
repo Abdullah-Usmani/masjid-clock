@@ -9,7 +9,7 @@ import os
 from time_checker import process_prayer_data, time_comparer
 
 # --- CONFIG ---
-OFFSET = 2.2
+OFFSET = 8
 PRAYER_DATABASE = process_prayer_data('./prayerTimes.csv')
 CURRENT_DAY_DATA = None
 GOLD = "#946d2e"
@@ -41,16 +41,23 @@ root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
 main_frame = ctk.CTkFrame(master=root, fg_color=(LIGHT, DARK))
 main_frame.pack(padx=10, pady=10, fill='both', expand=True)
 
+# Adjusted height proportions to fill the screen better
 info_frame = ctk.CTkFrame(master=main_frame, fg_color="transparent")
-info_frame.place(x=0, y=0, relwidth=1, relheight=0.45)
+info_frame.place(x=0,y=0,relwidth=1,relheight=0.45)
 
 prayer_frame = ctk.CTkFrame(master=main_frame, fg_color="transparent")
-prayer_frame.place(x=0, rely=0.45, relwidth=1, relheight=.55)
+prayer_frame.place(x=0,rely=0.45,relwidth=1,relheight=.55)
 
 rows_frame = ctk.CTkFrame(master=prayer_frame, fg_color="transparent")
 rows_frame.pack(fill='both', expand=True, ipady=30, ipadx=50)
+
+# Grid configuration to force rows to fill the vertical space
 rows_frame.columnconfigure((0, 2), weight=2, uniform='a')
 rows_frame.columnconfigure(1, weight=1, uniform='a')
+
+# Force all 7 rows (Header + 6 Times) to expand equally
+for i in range(7):
+    rows_frame.rowconfigure(i, weight=1)
 
 # --- HELPERS ---
 def update_label_cached(widget, key, new_value):
@@ -171,18 +178,49 @@ try:
 except:
     ctk.CTkLabel(qr_frame, text="[QR CODE]", font=("Roboto", 12)).pack()
 
-date_label = ctk.CTkLabel(info_frame, font=("Roboto", 60)); date_label.pack(pady=(40,0))
-hijri_label = ctk.CTkLabel(info_frame, font=("Roboto", 48)); hijri_label.pack()
-day_label = ctk.CTkLabel(info_frame, font=("Roboto", 48)); day_label.pack(pady=5)
+try:
+    logo_path_light = "Images/ISoc (black).png"
+    logo_path_dark = "Images/ISoc (white).png"
+    
+    my_image = ctk.CTkImage(
+        light_image=Image.open(logo_path_light), 
+        dark_image=Image.open(logo_path_dark), 
+        size=(100,50)
+    )
+    logo_label = ctk.CTkLabel(info_frame, image=my_image, text="")
+    logo_label.pack(pady=(20, 40))
+except Exception as e:
+    print(f"Logo failed to load: {e}")
+    ctk.CTkLabel(info_frame, text="[ISOC LOGO MISSING]", text_color="red").pack(pady=20)
 
-t_frame = ctk.CTkFrame(info_frame, fg_color="transparent"); t_frame.pack()
-currenttime_labels = {0: ctk.CTkLabel(t_frame, font=("Roboto", 150, "bold")), 1: ctk.CTkLabel(t_frame, font=("Roboto", 50, "bold")), 2: ctk.CTkLabel(t_frame, font=("Roboto", 50, "normal"))}
-currenttime_labels[0].grid(row=0, column=0, padx=10)
-currenttime_labels[1].grid(row=0, column=1, sticky='n', pady=20)
-currenttime_labels[2].grid(row=0, column=1, sticky='s', pady=20)
+# 2. Date Section
+date_label = ctk.CTkLabel(info_frame, font=("Roboto", 60))
+date_label.pack(expand=True)
 
-countdown_label = ctk.CTkLabel(info_frame, font=("Roboto", 30, "italic"), text_color=GOLD); countdown_label.pack(pady=5)
-ctk.CTkLabel(info_frame, text="unmisoc.com", font=("Roboto", 40, "bold"), text_color=GOLD).pack(pady=10)
+hijri_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 60))
+hijri_label.pack(expand=True, ipady=10)
+
+day_label = ctk.CTkLabel(master=info_frame, font=("Roboto", 48))
+day_label.pack(expand=True, ipady=10)
+
+# 3. Clock Section
+t_frame = ctk.CTkFrame(info_frame, fg_color="transparent")
+t_frame.pack(fill='none',expand=False)
+
+currenttime_labels = {
+    0: ctk.CTkLabel(t_frame, font=("Roboto", 150, "bold")), 
+    1: ctk.CTkLabel(t_frame, font=("Roboto", 50, "bold")), 
+    2: ctk.CTkLabel(t_frame, font=("Roboto", 50, "normal"))
+}
+currenttime_labels[0].grid(row=0, column=0, padx=15)
+currenttime_labels[1].grid(row=0, column=1, sticky='n', pady=25)
+currenttime_labels[2].grid(row=0, column=1, sticky='s', pady=25)
+
+# 4. Countdown & Notice
+countdown_label = ctk.CTkLabel(info_frame, font=("Roboto", 30, "normal"), text_color=GOLD)
+countdown_label.pack(pady=10, padx=15)
+
+ctk.CTkLabel(info_frame, text="unmisoc.com", font=("Roboto", 45, "bold"), text_color=GOLD).pack(pady=15)
 
 prayer_labels, act_time_labels, iqama_time_labels, status_labels = {}, {}, {}, {}
 p_names = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
@@ -198,6 +236,6 @@ for i in range(6):
     r_idx += 1
 
 for i in range(3):
-    status_labels[i] = ctk.CTkLabel(rows_frame, font=("Roboto", 30), fg_color=("#969696", "#383838")); status_labels[i].grid(row=r_idx, column=i, pady=12, sticky="nsew")
+    status_labels[i] = ctk.CTkLabel(rows_frame, font=("Roboto", 24), fg_color=("#969696", "#383838")); status_labels[i].grid(row=r_idx, column=i, pady=12, sticky="nsew")
 
 refresh_daily_data(); update_display(); root.mainloop()
